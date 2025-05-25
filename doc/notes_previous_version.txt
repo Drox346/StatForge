@@ -1,0 +1,222 @@
+TODO:
+    - CORE
+        - Hook for custom handling of cyclic dependencies. "Cyclic" member. ONLY IF NECESSARY
+        - Building default cells
+        - big list of constants for formulas?
+
+    - UTILITY
+        - Cyclic dependency check + error handling on cell insertion
+
+    - PERFORMANCE
+        - Final check regarding properly using lazy evaluation
+        - deletion vs deactivation of certain cells like keystone logic. avoid cell creation/deletion if possible
+            - deaction circumvents expensive allocations + GC calls
+            - alternative: stockpile unused cells for later deletion by holding a reference to them in some way
+
+    - DEBUG
+        - Proper look on debug system for value updates. Maybe different logging levels?
+        - Debug system for full graph dump
+            - Draw a seperate tree for each top level cell. Even with duplicates for lower cells?
+        - create dependency diagrams from current state 
+
+    - TEST
+        - unit tests for the engine
+
+    - ASPIRATIONAL
+        - aspirational: code generation from diagrams
+
+
+
+Instead of calling calculateAll we call calculateCell() only on cells we care about in the current context.
+    DISCUSSION POINTS:
+        - Not sure how to implement this yet. Couple ideas:
+            - Create a filter for each context
+            - Read cells map when adding a new value to filter in case it already exists -> add if it's the case
+            - Remove cell from filter when it's removed from cells map
+            - recalc when switching context
+
+
+Problem:
+    - We have a huge amount of cells. On top of that we have a huge amount of conditions that change how certain stats are calculated. What is the best way to handle it so that we:
+        - have good performance
+        - are unlikely to implement bugs
+        - catch errors in case we implement bugs
+        - have an easy time understanding whats going on when reading the code
+
+Cell organization
+    - Option1: Dynamic cells (my preference)
+        - Every time a condition is changed, add/remove cells to reflect change in calculations. 
+
+        - Cells
+            - Base Value cell: Doesn't have formulas* and provides just a value.
+            *There might be formulas but they are hidden from the spreadsheet engine. For example a cell named "FlatStrengthTree" would provide the sum of all flat 
+            strength stats from the skilltree. It wouldn't make sense to make a cell for every single node of the skilltree. Some logic that provides the value to the cell
+            should handle that.
+            - Aggregator cell: They sum the value of all their dependencies. This allows add/remove sources of stats without needing to hardcode every single dependency.
+            This avoids checking for dozens of conditions to handle certain calculations each time a dependency value changes.
+            - Formula cells: Contains custom formula to calculate values. Has fixed dependencies contrary to an aggregator cell. Allows more complicated 
+            calculations that aren't just summing up or multiplying all dependencies.
+
+            - Faster calculations when only values change, but there is an overhead to handle cell changes when conditions change. 
+              I still expect it to be much faster than static cells that re-check every condition each time some value was changed.
+            - More complicated to code good insert/delete logic and error handling
+
+            - DISCUSSION POINTS:
+                - Not sure how to do this yet in a clean manner yet. What other options exist and how do they perform?
+                    - Huge switch-case style block of code?
+                    - map[Condition]Action (my preference for now)
+                        - Provides a link between action and dependency in a reader friendly manner. Seperates condition mapping and action implementation.
+                        - Possible Actions:
+                            - AddCell
+                            - RemoveCell
+                            - AddDependency
+                            - RemoveDependency
+                - Aggregator spam mitigation by doing more out of engine calculations? See the previous skilltree strength example.
+                - Automatically generate aggregators for each stackable stat?
+
+    - Option2: Static cells
+        - Base Value cell: see Option1
+        - Formula cell: see Option1
+        - No aggregators needed as there are no dynamic dependencies that would force their usage. Could cause a lot of condition checks every time a value is changed.
+          Might reduce the amount of cells needed to calculate some stats due to avoiding the extra step via aggregators. Really hard to say without profiling but due
+          to the nature of the task it's not realistic to implement both. Would be at least hundreds of cells that need to be rewritten to work for the other system.
+        
+
+Miscellaneous
+    - Everything float64? even for bool like stats? Would increase clarity what each value stands for but 
+      supporting Multiple types is quite a decent amount of added complexity. Most likely less performance too.
+    - ModDB track changes. every change is mapped to a specific handler for that change
+
+
+
+Real time graph generator for current cell dependency layout. -> PUML?
+    - Very easy to map dependencies
+    - PUML layout engine looks for optimal layout with minimal overlapping when rendering the graph.
+
+
+http://www.plantuml.com/plantuml/uml/
+Example dependencies shown in a puml diagram:
+
+@startuml
+' Define a skin parameter for dirty cells: nodes marked <<Dirty>> will have a red background.
+skinparam rectangle {
+  BackgroundColor<<Dirty>> Red
+  BorderColor<<Dirty>> Black
+  FontColor<<Dirty>> White
+}
+
+' Define cells with abbreviations, displaying the cell name in bold and its current value on a new line.
+rectangle "<b>CharLevel</b>\nValue: 35" as CL
+rectangle "<b>FlatLifePerLevel</b>\nValue: 12" as FLPL
+rectangle "<b>FlatLifeLevel</b>\nValue: 420" as FLL <<Dirty>>
+
+rectangle "<b>FinalStr</b>\nValue: 495" as FS <<Dirty>>
+rectangle "<b>FlatLifeStr</b>\nValue: 200" as FLS
+
+rectangle "<b>BaseLife</b>\nValue: 38" as BL
+rectangle "<b>FlatLifeTree</b>\nValue: 20" as FLT
+rectangle "<b>FlatLifeGear</b>\nValue: 600" as FLG
+rectangle "<b>Ag_FlatLife</b>\nValue: 418" as AFL <<Dirty>>
+
+rectangle "<b>IncLifeTree</b>\nValue: 188" as ILT
+rectangle "<b>IncLifeGear</b>\nValue: 12" as ILG
+rectangle "<b>Ag_IncLife</b>\nValue: 200" as AIL
+
+rectangle "<b>FlatStrTree</b>\nValue: 150" as FST
+rectangle "<b>FlatStrGear</b>\nValue: 400" as FSG
+rectangle "<b>Ag_FlatStr</b>\nValue: 550" as AFS
+
+rectangle "<b>IncStrGear</b>\nValue: 55" as ISG
+rectangle "<b>IncStrTree</b>\nValue: 20" as IST
+rectangle "<b>Ag_IncStr</b>\nValue: 75" as AIS
+
+rectangle "<b>Ag_FlatDex</b>\nValue: 120" as AFD
+rectangle "<b>FlatDexTree</b>\nValue: 20" as FDT
+rectangle "<b>FlatDexGear</b>\nValue: 100" as FDG
+
+rectangle "<b>IncDexTree</b>\nValue: 0" as IDT
+rectangle "<b>IncDexGear</b>\nValue: 55" as IDG
+rectangle "<b>Ag_IncDex</b>\nValue: 55" as AID
+
+rectangle "<b>FinalDex</b>\nValue: 132" as FD
+
+rectangle "<b>FlatIntTree</b>\nValue: 150" as FIT
+rectangle "<b>FlatIntGear</b>\nValue: 400" as FIG
+rectangle "<b>Ag_FlatInt</b>\nValue: 550" as AFI
+
+rectangle "<b>IncIntGear</b>\nValue: 55" as IIG
+rectangle "<b>IncIntTree</b>\nValue: 20" as IIT
+rectangle "<b>Ag_IncInt</b>\nValue: 75" as AII
+
+rectangle "<b>FinalInt</b>\nValue: 496" as FI
+
+rectangle "<b>FinalLife</b>\nValue: 1000" as FL
+rectangle "<b>GarukhansFlight_LifeDex</b>\nValue: 26" as GFLD
+
+' -----------------------------
+' Define dependency edges (arrow: A --> B means B depends on A):
+
+' FlatLifeLevel depends on CharLevel and FlatLifePerLevel.
+CL         --> FLL
+FLPL       --> FLL
+
+' FlatLifeStr depends on FinalStr.
+FS         --> FLS
+
+' Ag_FlatLife aggregates: BaseLife, FlatLifeStr, FlatLifeTree, FlatLifeGear, and FlatLifeLevel.
+BL         --> AFL
+FLS        --> AFL
+FLT        --> AFL
+FLG        --> AFL
+FLL        --> AFL
+
+' In setupGarukhans, GarukhansFlight_LifeDex also affects Ag_FlatLife.
+GFLD      --> AFL
+
+' Ag_IncLife aggregates: IncLifeTree and IncLifeGear.
+ILT        --> AIL
+ILG        --> AIL
+
+' FinalStr is computed from Ag_FlatStr and Ag_IncStr.
+AFS        --> FS
+AIS        --> FS
+
+' Ag_FlatStr aggregates: FlatStrTree and FlatStrGear.
+FST        --> AFS
+FSG        --> AFS
+
+' Ag_IncStr aggregates: IncStrGear and IncStrTree.
+ISG        --> AIS
+IST        --> AIS
+
+' FinalDex depends on Ag_FlatDex and Ag_IncDex.
+AFD        --> FD
+AID        --> FD
+
+' Ag_FlatDex aggregates: FlatDexTree and FlatDexGear.
+FDT        --> AFD
+FDG        --> AFD
+
+' Ag_IncDex aggregates: IncDexTree and IncDexGear.
+IDT        --> AID
+IDG        --> AID
+
+' FinalInt depends on Ag_FlatInt and Ag_IncInt.
+AFI        --> FI
+AII        --> FI
+
+' Ag_FlatInt aggregates: FlatIntTree and FlatIntGear.
+FIT        --> AFI
+FIG        --> AFI
+
+' Ag_IncInt aggregates: IncIntGear and IncIntTree (note: currently using IncStr values in code).
+ISG        --> AII
+IST        --> AII
+
+' FinalLife depends on Ag_FlatLife and Ag_IncLife.
+AFL        --> FL
+AIL        --> FL
+
+' GarukhansFlight_LifeDex depends on FinalDex.
+FD         --> GFLD
+@enduml
