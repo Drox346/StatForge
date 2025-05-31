@@ -1,2 +1,6 @@
 #!/bin/bash
-cmake -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -Bbuild && cd build && ninja && ./example/example ; cd "$(dirname "$0")"
+set -e
+
+cmake -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build -S .
+cmake --build build
+./build/example/example

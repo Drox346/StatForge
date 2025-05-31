@@ -62,6 +62,31 @@ void Spreadsheet::removeCell(CellId const& id) {
     //m_cellDependents.erase() + dependency from dependents
 }
 
+void Spreadsheet::setCellValue(CellId const& id, CellValue value) {
+    auto const& cell = m_cells.find(id);
+    if(cell != m_cells.end()) {
+        cell->second.value = value;
+        setDirty(id);
+    }
+    else {
+        //TODO debug
+    }
+}
+
+CellValue Spreadsheet::getCellValue(CellId const& id) {
+    CellValue value;
+
+    auto const& cell = m_cells.find(id);
+    if(cell != m_cells.end()) {
+        value = cell->second.value;
+    }
+    else {
+        //TODO debug
+    }
+
+    return value;
+}
+
 void Spreadsheet::evaluate(CellId const& id) {
     (this->*evaluateImpl)(id);
 }

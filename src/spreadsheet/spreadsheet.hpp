@@ -23,6 +23,9 @@ public:
     void setCellDependencies(CellId const& id, std::vector<CellId> const& dependencies);
     void removeCell(CellId const& id);
 
+    void setCellValue(CellId const& id, CellValue value);
+    CellValue getCellValue(CellId const& id);
+
     void evaluate(CellId const& id);
     void evaluate();
     
