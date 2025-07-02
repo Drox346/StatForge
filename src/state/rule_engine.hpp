@@ -16,7 +16,7 @@ public:
     void reset();
 
 private:
-    std::unordered_map<std::string, Rule> m_rules;
+    std::unordered_map<std::string, Rule> _rules;
 };
-    
+
 } // namespace statforge

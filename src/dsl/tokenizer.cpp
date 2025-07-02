@@ -1,5 +1,192 @@
 #include "tokenizer.hpp"
+#include "dsl/error.hpp"
+
+#include <cctype>
+#include <charconv>
 
 namespace statforge {
+
+void Tokenizer::fail(char const* message) const {
+    throw statforge::DslError{_here, message};
+}
+
+char Tokenizer::peek(std::size_t off) const {
+    return _pos + off < _source.size() ? _source[_pos + off] : '\0';
+}
+
+bool Tokenizer::match(char expected) {
+    if (peek() != expected) {
+        return false;
+    }
+    advance();
+    return true;
+}
+
+void Tokenizer::advance() {
+    if (peek() == '\n') {
+        ++_here.line;
+        _here.column = 1;
+    } else {
+        ++_here.column;
+    }
+    ++_pos;
+}
+
+void Tokenizer::add(TokenKind k) {
+    _tokens.push_back(Token{.kind = k, .lexeme = _source.substr(_pos - 1, 1), .span = _here});
+}
+
+void Tokenizer::number() {
+    const std::size_t start = _pos;
+    while (std::isdigit(peek())) {
+        advance();
+    }
+    if (peek() == '.' && std::isdigit(peek(1))) {
+        advance(); // consume '.'
+        while (std::isdigit(peek())) {
+            advance();
+        }
+    }
+    const std::string_view lex = _source.substr(start, _pos - start);
+    double value{};
+    std::from_chars(lex.begin(), lex.end(), value);
+    _tokens.push_back(Token{.kind = TokenKind::Number, .lexeme = lex, .span = _here, .number = value});
+}
+
+void Tokenizer::identifierOrKeyword() {
+    const std::size_t start = _pos;
+    while (std::isalnum(peek()) || peek() == '_') {
+        advance();
+    }
+    const std::string_view lex = _source.substr(start, _pos - start);
+
+    if (lex == "true" || lex == "false") {
+        _tokens.push_back(
+            Token{.kind = TokenKind::Number, .lexeme = lex, .span = _here, .number = lex == "true" ? 1.0 : 0.0});
+        return;
+    }
+    _tokens.push_back(Token{.kind = TokenKind::Identifier, .lexeme = lex, .span = _here});
+}
+
+void Tokenizer::cellReference() {
+    Span begin = _here;
+    advance(); // skip leading '<'
+    const std::size_t start = _pos;
+    while (std::isalnum(peek()) || peek() == '_') {
+        advance();
+    }
+    const auto name = _source.substr(start, _pos - start);
+    if (peek() != '>') {
+        fail("Unterminated cell reference");
+    }
+    advance(); // consume '>'
+    _tokens.push_back(Token{.kind = TokenKind::CellRef, .lexeme = name, .span = begin});
+}
+
+std::vector<Token> Tokenizer::tokenize() {
+    while (peek() != '\0') {
+        char currentCharacter = peek();
+        advance();
+
+        if (std::isspace(currentCharacter)) {
+            continue;
+        }
+
+        switch (currentCharacter) {
+        case '(':
+            add(TokenKind::LeftParen);
+            continue;
+        case ')':
+            add(TokenKind::RightParen);
+            continue;
+        case ',':
+            add(TokenKind::Comma);
+            continue;
+        case '?':
+            add(TokenKind::Question);
+            continue;
+        case ':':
+            add(TokenKind::Colon);
+            continue;
+        case '+':
+            add(TokenKind::Plus);
+            continue;
+        case '-':
+            add(TokenKind::Minus);
+            continue;
+        case '*':
+            add(TokenKind::Star);
+            continue;
+        case '/':
+            add(TokenKind::Slash);
+            continue;
+        case '^':
+            add(TokenKind::Caret);
+            continue;
+        case '!':
+            if (match('=')) {
+                _tokens.push_back(Token{.kind = TokenKind::BangEqual, .lexeme = "!=", .span = _here});
+            } else {
+                add(TokenKind::Bang);
+            }
+            continue;
+        case '<':
+            if (match('=')) {
+                _tokens.push_back(Token{.kind = TokenKind::LessEqual, .lexeme = "<=", .span = _here});
+            } else if (std::isalpha(peek())) {
+                _pos--;
+                _here.column--;
+                cellReference();
+            } else {
+                add(TokenKind::Less);
+            }
+            continue;
+        case '>':
+            if (match('=')) {
+                _tokens.push_back(Token{.kind = TokenKind::GreaterEqual, .lexeme = ">=", .span = _here});
+            } else {
+                add(TokenKind::Greater);
+            }
+            continue;
+        case '=':
+            if (match('=')) {
+                _tokens.push_back(Token{.kind = TokenKind::EqualEqual, .lexeme = "==", .span = _here});
+            } else {
+                fail("'=' is invalid in formulas (did you mean '=='?)");
+            }
+            continue;
+        case '&':
+            if (match('&')) {
+                _tokens.push_back(Token{.kind = TokenKind::AndAnd, .lexeme = "&&", .span = _here});
+            } else {
+                fail("single '&' not supported");
+            }
+            continue;
+        case '|':
+            if (match('|')) {
+                _tokens.push_back(Token{.kind = TokenKind::OrOr, .lexeme = "||", .span = _here});
+            } else {
+                fail("single '|' not supported");
+            }
+            continue;
+        case '"':
+            fail("string literals not supported (double-only DSL)");
+        default:
+            if (std::isdigit(currentCharacter)) {
+                _pos--;
+                _here.column--;
+                number();
+            } else if (std::isalpha(currentCharacter) || currentCharacter == '_') {
+                _pos--;
+                _here.column--;
+                identifierOrKeyword();
+            } else {
+                fail("unknown character in formula");
+            }
+        }
+    }
+    _tokens.push_back(Token{.kind = TokenKind::EndOfFile, .lexeme = {}, .span = _here});
+    return _tokens;
+}
 
 } // namespace statforge

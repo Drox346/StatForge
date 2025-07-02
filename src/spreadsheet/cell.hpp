@@ -6,10 +6,12 @@
 
 namespace statforge {
 
+using CellFormula = std::function<CellValue()>;
+
 struct Cell {
-    std::function<CellValue()> formula;
+    CellFormula formula;
     bool dirty{false};
     CellValue value{};
 };
-    
+
 } // namespace statforge

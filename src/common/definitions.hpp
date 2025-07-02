@@ -15,6 +15,6 @@ using RuleValueType = double;
 using ActionType = std::function<void(RuleValueType)>;
 
 
-constexpr size_t maxCellCount{50000};
-    
+constexpr std::size_t maxCellCount{50000};
+
 } // namespace statforge
