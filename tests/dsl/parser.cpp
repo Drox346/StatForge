@@ -1,7 +1,7 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "dsl/parser.hpp"
 #include "dsl/ast.hpp"
 #include "dsl/tokenizer.hpp"
+
 #include <doctest/doctest.h>
 
 using statforge::dumpSExpr;

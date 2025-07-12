@@ -101,7 +101,7 @@ ExprPtr Parser::foldConstants(ExprPtr node) {
                 actual.lhs = foldConstants(std::move(actual.lhs));
                 actual.rhs = foldConstants(std::move(actual.rhs));
 
-                if (auto const* lhs = std::get_if<Literal>(actual.lhs.get()))
+                if (auto const* lhs = std::get_if<Literal>(actual.lhs.get())) {
                     if (auto const* rhs = std::get_if<Literal>(actual.rhs.get())) {
                         double val{};
                         switch (actual.op) {
@@ -128,6 +128,7 @@ ExprPtr Parser::foldConstants(ExprPtr node) {
                         }
                         node = lit(val, actual.span);
                     }
+                }
             } else if constexpr (std::is_same_v<Node, Ternary>) {
                 actual.cond = foldConstants(std::move(actual.cond));
                 actual.thenExpr = foldConstants(std::move(actual.thenExpr));

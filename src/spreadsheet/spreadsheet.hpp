@@ -1,24 +1,34 @@
 #pragma once
 
 #include "common/definitions.hpp"
+#include "dsl/ast.hpp"
 #include "spreadsheet/cell.hpp"
 
+#include <cstdint>
+#include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace statforge {
 
 class Spreadsheet {
 public:
-    enum class EvaluationType {
+    enum class EvaluationType : uint8_t {
         Iterative,
         Recursive,
     };
+
+    struct CompiledFormula {
+        std::unique_ptr<statforge::ExpressionTree> ast;
+        std::unordered_set<std::string_view> deps;
+    };
+
     Spreadsheet();
 
-    void setEvaluationType(EvaluationType type = EvaluationType::Iterative);
+    void setEvaluationType(EvaluationType type);
 
     void createAggregatorCell(CellId const& id, std::vector<CellId> const& dependencies);
-    void createFormulaCell(CellId const& id, std::string const& formula);
+    void createFormulaCell(CellId const& id, std::string_view const& formula);
     void createValueCell(CellId const& id, double value);
     void setCellDependencies(CellId const& id, std::vector<CellId> const& dependencies);
     void removeCell(CellId const& id);
@@ -28,9 +38,9 @@ public:
 
     void evaluate(CellId const& id);
     void evaluate();
-    
+
     void reset();
-    
+
 private:
     void setDirty(CellId const& id);
 
@@ -38,11 +48,17 @@ private:
     void evaluateIterative(CellId const& id);
     void (Spreadsheet::*evaluateImpl)(CellId const& id) = nullptr;
 
-    std::unordered_map<CellId, Cell> m_cells;
-    std::vector<CellId> m_dirtyLeaves;
+    CellFormula makeThunk(std::unique_ptr<statforge::ExpressionTree> ast);
+    void wireDependencies(CellId const& id, std::unordered_set<std::string_view> const& depNames);
 
-    std::unordered_map<CellId, std::vector<CellId>> m_cellDependencies;
-    std::unordered_map<CellId, std::vector<CellId>> m_cellDependents;
+    static Spreadsheet::CompiledFormula compileDSL(std::string const& text);
+    static inline CellId resolveCellId(std::string_view const& id);
+
+    std::unordered_map<CellId, Cell> _cells;
+    std::vector<CellId> _dirtyLeaves;
+
+    std::unordered_map<CellId, std::vector<CellId>> _cellDependencies;
+    std::unordered_map<CellId, std::vector<CellId>> _cellDependents;
 };
-    
+
 } // namespace statforge

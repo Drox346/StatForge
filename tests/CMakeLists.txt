@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 4.0.0)
 add_executable(
     tests
     
+    main.cpp
+
     dsl/tokenizer.cpp
     dsl/parser.cpp
     dsl/evaluator.cpp

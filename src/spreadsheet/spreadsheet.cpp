@@ -1,86 +1,100 @@
-#include <stack>
-
-#include "dsl/parser.hpp"
 #include "spreadsheet.hpp"
 #include "common/definitions.hpp"
+#include "dsl/ast.hpp"
+#include "dsl/evaluator.hpp"
+#include "dsl/parser.hpp"
+
+#include <cstdint>
+#include <memory>
+#include <stack>
+#include <string_view>
 
 namespace statforge {
 
-/************************ Public ************************/
-
-Spreadsheet::Spreadsheet() : evaluateImpl(&Spreadsheet::evaluateIterative) {}
+Spreadsheet::Spreadsheet() : evaluateImpl(&Spreadsheet::evaluateIterative) {
+}
 
 void Spreadsheet::setEvaluationType(EvaluationType type) {
-    if(type == EvaluationType::Recursive) {
+    if (type == EvaluationType::Recursive) {
         evaluateImpl = &Spreadsheet::evaluateRecursive;
-    }
-    else {
+    } else {
         evaluateImpl = &Spreadsheet::evaluateIterative;
     }
 }
 
 void Spreadsheet::createAggregatorCell(CellId const& id, std::vector<CellId> const& dependencies) {
-    auto aggregate = [this, id]()->CellValue {
+    auto aggregate = [this, id]() -> CellValue {
         CellValue value{0};
 
-        auto& dependencies = m_cellDependencies[id];
-        for(auto const& dependency : dependencies) {
-            value += m_cells[dependency].value;
+        auto& dependencies = _cellDependencies[id];
+        for (auto const& dependency : dependencies) {
+            value += _cells[dependency].value;
         }
 
         return value;
     };
-    
-    m_cells[id] = {aggregate, true, 0};
-    m_dirtyLeaves.emplace_back(id);
+
+    _cells[id] = {.formula = aggregate, .dirty = true, .value = 0};
+    _dirtyLeaves.emplace_back(id);
     setCellDependencies(id, dependencies);
 }
 
-void Spreadsheet::createFormulaCell(CellId const& id, std::string const& formula) {
-    m_cells[id] = {Parser::parseFormula(formula), true, 0};
-    m_dirtyLeaves.emplace_back(id);
-    setCellDependencies(id, Parser::parseFormulaDependencies(formula));
+void Spreadsheet::createFormulaCell(CellId const& id, std::string_view const& formula) {
+    auto src = std::make_shared<std::string>(formula);
+
+    auto ast = statforge::Parser{statforge::Tokenizer{*src}.tokenize()}.parse();
+    auto deps = statforge::extractDependencies(*ast);
+
+    CellFormula thunk = [this,
+                         src, // keeps string alive
+                         expr = std::shared_ptr<statforge::ExpressionTree>(std::move(ast))]() -> CellValue {
+        statforge::Context ctx{
+            .cellLookup = [this](std::string_view const n) -> double { return _cells.at(resolveCellId(n)).value; }};
+        return statforge::evaluate(*expr, ctx);
+    };
+
+    _cells[id] = {.formula = std::move(thunk), .dirty = true, .value = 0.0};
+    wireDependencies(id, deps);
+    _dirtyLeaves.emplace_back(id);
 }
 
 void Spreadsheet::createValueCell(CellId const& id, double value) {
-    m_cells[id] = {nullptr, false, value};
+    _cells[id] = {.formula = nullptr, .dirty = false, .value = value};
 }
 
 void Spreadsheet::setCellDependencies(CellId const& id, std::vector<CellId> const& dependencies) {
-    m_cellDependencies[id] = dependencies;
-    for(auto& dependent : dependencies) {
-        m_cellDependents[dependent].emplace_back(id);
+    _cellDependencies[id] = dependencies;
+    for (const auto& dependent : dependencies) {
+        _cellDependents[dependent].emplace_back(id);
     }
     setDirty(id);
 }
 
 void Spreadsheet::removeCell(CellId const& id) {
-    //m_leaveCells.erase(id) //FIXME
-    m_cells.erase(id);
-    //m_dirtyLeaves.erase();
-    //m_cellDependencies.erase() + dependent from dependencies
-    //m_cellDependents.erase() + dependency from dependents
+    //_leaveCells.erase(id) //FIXME
+    _cells.erase(id);
+    //_dirtyLeaves.erase();
+    //_cellDependencies.erase() + dependent from dependencies
+    //_cellDependents.erase() + dependency from dependents
 }
 
 void Spreadsheet::setCellValue(CellId const& id, CellValue value) {
-    auto const& cell = m_cells.find(id);
-    if(cell != m_cells.end()) {
+    auto const& cell = _cells.find(id);
+    if (cell != _cells.end()) {
         cell->second.value = value;
         setDirty(id);
-    }
-    else {
+    } else {
         //TODO debug
     }
 }
 
 CellValue Spreadsheet::getCellValue(CellId const& id) {
-    CellValue value;
+    CellValue value{};
 
-    auto const& cell = m_cells.find(id);
-    if(cell != m_cells.end()) {
+    auto const& cell = _cells.find(id);
+    if (cell != _cells.end()) {
         value = cell->second.value;
-    }
-    else {
+    } else {
         //TODO debug
     }
 
@@ -92,20 +106,19 @@ void Spreadsheet::evaluate(CellId const& id) {
 }
 
 void Spreadsheet::evaluate() {
-    for(auto const& cell : m_dirtyLeaves) {
+    for (auto const& cell : _dirtyLeaves) {
         evaluate(cell);
     }
-    m_dirtyLeaves.clear();
+    _dirtyLeaves.clear();
 }
 
 void Spreadsheet::reset() {
-    m_cellDependencies.clear();
-    m_cellDependents.clear();
-    m_dirtyLeaves.clear();
-    m_cells.clear();
+    _cellDependencies.clear();
+    _cellDependents.clear();
+    _dirtyLeaves.clear();
+    _cells.clear();
 }
 
-/************************ Private ************************/
 
 void Spreadsheet::setDirty(CellId const& id) {
     std::stack<CellId> work;
@@ -114,7 +127,7 @@ void Spreadsheet::setDirty(CellId const& id) {
     while (!work.empty()) {
         auto currentId = work.top();
         work.pop();
-        auto& currentCell = m_cells[currentId];
+        auto& currentCell = _cells[currentId];
 
         if (currentCell.dirty) {
             continue;
@@ -122,19 +135,23 @@ void Spreadsheet::setDirty(CellId const& id) {
 
         currentCell.dirty = true;
 
-        for (auto const& dependent : m_cellDependents[currentId]) {
+        const auto& dependents = _cellDependents[currentId];
+        for (auto const& dependent : dependents) {
             work.push(dependent);
+        }
+        if (dependents.empty()) {
+            _dirtyLeaves.emplace_back(currentId);
         }
     }
 }
 
 void Spreadsheet::evaluateRecursive(CellId const& id) {
-    auto& cell = m_cells[id];
-    if(cell.dirty) {
-        for(auto const& dependency : m_cellDependencies[id]) {
+    auto& cell = _cells[id];
+    if (cell.dirty) {
+        for (auto const& dependency : _cellDependencies[id]) {
             evaluateRecursive(dependency);
         }
-        if(cell.formula) {
+        if (cell.formula) {
             cell.value = cell.formula();
         }
         cell.dirty = false;
@@ -142,7 +159,7 @@ void Spreadsheet::evaluateRecursive(CellId const& id) {
 }
 
 void Spreadsheet::evaluateIterative(CellId const& id) {
-    enum class VisitState { Unvisited, Visiting, Visited };
+    enum class VisitState : uint8_t { Unvisited, Visiting, Visited };
     std::unordered_map<CellId, VisitState> visitState;
 
     std::stack<CellId> stack;
@@ -157,7 +174,7 @@ void Spreadsheet::evaluateIterative(CellId const& id) {
             continue;
         }
 
-        auto& cell = m_cells[currentId];
+        auto& cell = _cells[currentId];
 
         if (state == VisitState::Unvisited) {
             state = VisitState::Visiting;
@@ -168,7 +185,7 @@ void Spreadsheet::evaluateIterative(CellId const& id) {
                 continue;
             }
 
-            for (const auto& dep : m_cellDependencies[currentId]) {
+            for (const auto& dep : _cellDependencies[currentId]) {
                 if (visitState[dep] != VisitState::Visited) {
                     stack.push(dep);
                 }
@@ -182,6 +199,39 @@ void Spreadsheet::evaluateIterative(CellId const& id) {
             stack.pop();
         }
     }
+}
+
+Spreadsheet::CompiledFormula Spreadsheet::compileDSL(std::string const& text) {
+    auto ast = statforge::Parser{statforge::Tokenizer{text}.tokenize()}.parse();
+    auto deps = statforge::extractDependencies(*ast);
+    return {.ast = std::move(ast), .deps = std::move(deps)};
+}
+
+CellFormula Spreadsheet::makeThunk(std::unique_ptr<statforge::ExpressionTree> ast) {
+    auto expressionTree = std::shared_ptr<ExpressionTree>(ast.get());
+
+    return [this, expressionTree]() -> CellValue {
+        statforge::Context const ctx{.cellLookup = [this](std::string_view const name) -> double {
+            return _cells.at(resolveCellId(name)).value;
+        }};
+
+        return statforge::evaluate(*expressionTree, ctx);
+    };
+}
+
+void Spreadsheet::wireDependencies(CellId const& id, std::unordered_set<std::string_view> const& depNames) {
+    std::vector<CellId> deps;
+    deps.reserve(depNames.size());
+
+    for (std::string_view name : depNames) {
+        deps.push_back(resolveCellId(name));
+    }
+
+    setCellDependencies(id, deps);
+}
+
+inline CellId Spreadsheet::resolveCellId(std::string_view const& id) {
+    return std::string{id};
 }
 
 } // namespace statforge

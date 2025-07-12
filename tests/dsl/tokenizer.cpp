@@ -1,4 +1,5 @@
 #include "dsl/tokenizer.hpp"
+
 #include <doctest/doctest.h>
 
 using statforge::Tokenizer;
