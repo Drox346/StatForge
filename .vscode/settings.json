@@ -3,4 +3,10 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "xaver.clang-format"
     },
+    "clangd.arguments": [
+        "--compile-commands-dir=build",
+        "--background-index",
+        "--experimental-modules-support",
+        "--pch-storage=memory"
+    ]
 }

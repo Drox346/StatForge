@@ -7,6 +7,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
+export CC=clang
+export CXX=clang++
+
 cmake -DTESTING=ON -DEXAMPLES=OFF -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build -S .
 cmake --build build
 cd build
