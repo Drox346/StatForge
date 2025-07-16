@@ -38,7 +38,6 @@ build/
 # Custom
 doc/code_format.txt
 doc/dsl_draft*
-doc/roadmap*
 doc/tree*
 doc/notes*
 doc/design*

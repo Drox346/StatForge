@@ -1,0 +1,37 @@
+1.0:
+
+#	Main Topics
+[ ] 1	Public API freeze                 Finalise names, headers, semantics, add header docs
+[ ] 2	Dependency validation             Unknown-ref + cycle detection inside setCellDependencies (rollback on error?)
+[ ] 3	Bulk-import helpers               reserveCells(n) pre-sizes maps, createFormulaCellsBulk() parses/wires thousands of formulas in one pass
+[ ] 4	Intrinsic registry                Host registers name -> λ(span<double>) before any parse (e.g. sqrt, clamp, pow, abs, min, max, floor, ceil, round)
+[ ] 5	Rule -> Action system             Parse & execute "if <cond> then set <cell> to <expr>" rules; fires during evaluate
+[ ] 6	PlantUML export                   dumpPlantUml(ostream, showValues) for graph visualisation
+[ ] 7	Comprehensive error UX            DslError span bubbles up through Spreadsheet -> UI/CLI
+[ ] 8	High-coverage unit tests          Lexer, parser, evaluator, rule engine, cycle check, bulk insert, edge cases
+[X] 9	Duplicate-dependency eliminator   Auto-dedupe <A> + <A> lists at wiring time
+[ ] 10	Execution metrics                 Per sheet struct: last eval ms/μs, cells visited, dirty leaf count
+[ ] 11	Memory / ASan                     clean build, document MB per-cell baseline
+[ ] 12	Docs & examples	                  README, quick-start, example stat dependency tree, performance tests, best practices, avoiding pitfalls
+[ ] 13	Packaging                         cmake --install, vcpkg / conan ports
+[ ] 14	CI matrix                         GitHub Actions: linux & windows release builds + tests + perf budget gate
+[ ] 15	Optional: trace(cellId) helper    Return ordered list of formulas touched while resolving a cell (debug aid)
+[ ] 16  Cpp Modules                       Changing c++ headers to c++23 modules
+
+#   Tasks
+[ ] DSL "%" for fmod
+[ ] ALWAYS eval on api read value call. never expose dirty values
+[ ] isDirty(id) api
+[ ] forbid self reference
+[ ] store cell type, puml border colour per cell type
+[ ] puml "legend right" to create a legend
+[ ] puml show dirty cells as red
+[ ] puml formula field if formula cell
+[ ] puml links
+
+1.1:
+Persistence, save/load of compiled sheets
+Support for more functions like exp, log, frac, sin, cos, etc
+Safe-math toggles (divide-by-zero clamp, pow overflow)
+Advanced progress callbacks / UI bars
+Byte-code VM revisit & further tuning
