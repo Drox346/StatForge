@@ -23,8 +23,6 @@ public:
         std::unordered_set<std::string_view> deps;
     };
 
-    Spreadsheet();
-
     void setEvaluationType(EvaluationType type);
 
     void createAggregatorCell(CellId const& id, std::vector<CellId> const& dependencies);
@@ -46,7 +44,7 @@ private:
 
     void evaluateRecursive(CellId const& id);
     void evaluateIterative(CellId const& id);
-    void (Spreadsheet::*evaluateImpl)(CellId const& id) = nullptr;
+    void (Spreadsheet::*evaluateImpl)(CellId const& id) = &Spreadsheet::evaluateIterative;
 
     CellFormula makeThunk(std::unique_ptr<statforge::ExpressionTree> ast);
     void wireDependencies(CellId const& id, std::unordered_set<std::string_view> const& depNames);

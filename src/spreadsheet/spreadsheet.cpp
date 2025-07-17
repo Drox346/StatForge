@@ -11,9 +11,6 @@
 
 namespace statforge {
 
-Spreadsheet::Spreadsheet() : evaluateImpl(&Spreadsheet::evaluateIterative) {
-}
-
 void Spreadsheet::setEvaluationType(EvaluationType type) {
     if (type == EvaluationType::Recursive) {
         evaluateImpl = &Spreadsheet::evaluateRecursive;
