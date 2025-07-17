@@ -4,7 +4,9 @@
 #include "dsl/evaluator.hpp"
 #include "dsl/parser.hpp"
 
+#include <cassert>
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <stack>
 #include <string_view>
@@ -81,18 +83,25 @@ void Spreadsheet::setCellValue(CellId const& id, CellValue value) {
         cell->second.value = value;
         setDirty(id);
     } else {
-        //TODO debug
+        std::cerr << "setCellValue: unknown cell ID: " << id << "\n";
+        assert(false && "setCellValue: unknown cell ID");
     }
 }
 
 CellValue Spreadsheet::getCellValue(CellId const& id) {
     CellValue value{};
 
-    auto const& cell = _cells.find(id);
-    if (cell != _cells.end()) {
-        value = cell->second.value;
+    auto const& cellEntry = _cells.find(id);
+    if (cellEntry != _cells.end()) {
+        const auto& cell = cellEntry->second;
+
+        if (cell.dirty) {
+            evaluate(id);
+        }
+        value = cell.value;
     } else {
-        //TODO debug
+        std::cerr << "getCellValue: unknown cell ID: " << id << "\n";
+        assert(false && "getCellValue: unknown cell ID");
     }
 
     return value;

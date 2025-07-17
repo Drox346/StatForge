@@ -18,9 +18,10 @@
 [ ] 15	Optional: trace(cellId) helper    Return ordered list of formulas touched while resolving a cell (debug aid)
 [ ] 16  Cpp Modules                       Changing c++ headers to c++23 modules
 
-#   Tasks
+#   Minor Tasks/ToDo
 [ ] DSL "%" for fmod
-[ ] ALWAYS eval on api read value call. never expose dirty values
+[ ] bool() func, approx for all comparison operators, 1e-14 > val > -1e-14 -> false
+[X] ALWAYS eval on api read value call. never expose dirty values
 [ ] isDirty(id) api
 [ ] forbid self reference
 [ ] store cell type, puml border colour per cell type
@@ -28,6 +29,7 @@
 [ ] puml show dirty cells as red
 [ ] puml formula field if formula cell
 [ ] puml links
+[ ] proper guard rails for different cell types for functions like setValue, setFormula, add/remove dependency
 
 1.1:
 Persistence, save/load of compiled sheets
