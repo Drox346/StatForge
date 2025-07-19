@@ -1,5 +1,3 @@
-#include "c.hpp"
+#include "cpp.hpp"
 
-namespace statforge {
-
-} // namespace statforge
+namespace statforge {} // namespace statforge
