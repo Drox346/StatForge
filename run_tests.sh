@@ -14,4 +14,4 @@ cmake -DTESTING=ON -DEXAMPLES=OFF -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B
 cmake --build build
 cd build
 # ctest --output-on-failure
-./tests/tests
+./tests/test_statforge
