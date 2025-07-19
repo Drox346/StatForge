@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 4.0.0)
 
 add_executable(
-    tests
+    test_statforge
     
     main.cpp
 
@@ -12,8 +12,8 @@ add_executable(
     spreadsheet/cell_creation.cpp
 )
 
-target_link_libraries(tests PRIVATE StatForge doctest::doctest)
+target_link_libraries(test_statforge PRIVATE StatForge doctest::doctest)
 
-add_test(NAME statforge_tests COMMAND tests)
+add_test(NAME test_statforge COMMAND test_statforge)
 
-install(TARGETS tests DESTINATION bin)
+install(TARGETS test_statforge DESTINATION bin)
