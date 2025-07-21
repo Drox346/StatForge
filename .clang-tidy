@@ -14,6 +14,7 @@ Checks: >
   -bugprone-exception-escape,
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-avoid-do-while,
   -bugprone-easily-swappable-parameters,
   -cppcoreguidelines-non-private-member-variables-in-classes
 WarningsAsErrors: ''
