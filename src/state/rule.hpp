@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/definitions.hpp"
+#include "common/internal/definitions.hpp"
 
 namespace statforge {
 

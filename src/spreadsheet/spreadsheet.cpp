@@ -1,5 +1,5 @@
 #include "spreadsheet.hpp"
-#include "common/definitions.hpp"
+#include "common/internal/definitions.hpp"
 #include "dsl/ast.hpp"
 #include "dsl/evaluator.hpp"
 #include "dsl/parser.hpp"

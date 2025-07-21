@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common/definitions.hpp"
 #include "dsl/ast.hpp"
 #include "spreadsheet/cell.hpp"
 
