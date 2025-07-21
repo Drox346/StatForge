@@ -146,7 +146,7 @@ std::unordered_set<std::string_view> statforge::extractDependencies(ExpressionTr
     std::vector<ExpressionTree const*> queue;
     queue.push_back(&expression);
 
-    for (std::size_t cursor{0}; cursor < queue.size(); ++cursor) {
+    for (std::size_t cursor = 0; cursor < queue.size(); ++cursor) {
         ExpressionTree const* current{queue[cursor]};
 
         std::visit(
