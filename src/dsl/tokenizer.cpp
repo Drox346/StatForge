@@ -1,14 +1,20 @@
 #include "tokenizer.hpp"
-#include "dsl/error.hpp"
+#include "common/internal/error.hpp"
 
 #include <cctype>
 #include <charconv>
+#include <expected>
+#include <format>
 
 namespace statforge {
 
-void Tokenizer::fail(char const* message) const {
-    throw statforge::DslError{_here, message};
+namespace {
+
+inline bool isReferenceChar(char c) {
+    return (std::isalnum(c) != 0) || c == '_';
 }
+
+} // namespace
 
 char Tokenizer::peek(std::size_t off) const {
     return _pos + off < _source.size() ? _source[_pos + off] : '\0';
@@ -55,7 +61,7 @@ void Tokenizer::number() {
 
 void Tokenizer::identifierOrKeyword() {
     const std::size_t start = _pos;
-    while (std::isalnum(peek()) || peek() == '_') {
+    while (isReferenceChar(peek())) {
         advance();
     }
     const std::string_view lex = _source.substr(start, _pos - start);
@@ -68,22 +74,25 @@ void Tokenizer::identifierOrKeyword() {
     _tokens.push_back(Token{.kind = TokenKind::Identifier, .lexeme = lex, .span = _here});
 }
 
-void Tokenizer::cellReference() {
+VoidResult Tokenizer::cellReference() {
     Span begin = _here;
     advance(); // skip leading '<'
     const std::size_t start = _pos;
-    while (std::isalnum(peek()) || peek() == '_') {
+    while (isReferenceChar(peek())) {
         advance();
     }
     const auto name = _source.substr(start, _pos - start);
     if (peek() != '>') {
-        fail("Unterminated cell reference");
+        return std::unexpected(
+            buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(Unterminated cell reference)"), _here));
     }
     advance(); // consume '>'
     _tokens.push_back(Token{.kind = TokenKind::CellRef, .lexeme = name, .span = begin});
+
+    return {};
 }
 
-std::vector<Token> Tokenizer::tokenize() {
+TokenResult Tokenizer::tokenize() {
     while (peek() != '\0') {
         char currentCharacter = peek();
         advance();
@@ -136,7 +145,11 @@ std::vector<Token> Tokenizer::tokenize() {
             } else if (std::isalpha(peek())) {
                 _pos--;
                 _here.column--;
-                cellReference();
+                auto result = cellReference();
+                if (!result) {
+                    return std::unexpected(std::move(result).error());
+                }
+
             } else {
                 add(TokenKind::Less);
             }
@@ -152,25 +165,30 @@ std::vector<Token> Tokenizer::tokenize() {
             if (match('=')) {
                 _tokens.push_back(Token{.kind = TokenKind::EqualEqual, .lexeme = "==", .span = _here});
             } else {
-                fail("'=' is invalid in formulas (did you mean '=='?)");
+                return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL,
+                                                      std::format(R"('=' is invalid in formulas (did you mean '=='?))"),
+                                                      _here));
             }
             continue;
         case '&':
             if (match('&')) {
                 _tokens.push_back(Token{.kind = TokenKind::AndAnd, .lexeme = "&&", .span = _here});
             } else {
-                fail("single '&' not supported");
+                return std::unexpected(
+                    buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(Single '&' not supported)"), _here));
             }
             continue;
         case '|':
             if (match('|')) {
                 _tokens.push_back(Token{.kind = TokenKind::OrOr, .lexeme = "||", .span = _here});
             } else {
-                fail("single '|' not supported");
+                return std::unexpected(
+                    buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(Single '|' not supported)"), _here));
             }
             continue;
         case '"':
-            fail("string literals not supported (double-only DSL)");
+            return std::unexpected(
+                buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(String literals not supported)"), _here));
         default:
             if (std::isdigit(currentCharacter)) {
                 _pos--;
@@ -181,7 +199,8 @@ std::vector<Token> Tokenizer::tokenize() {
                 _here.column--;
                 identifierOrKeyword();
             } else {
-                fail("unknown character in formula");
+                return std::unexpected(
+                    buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(Unknown character in formula)"), _here));
             }
         }
     }

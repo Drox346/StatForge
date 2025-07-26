@@ -1,6 +1,9 @@
 #include "dsl/evaluator.hpp"
+#include "common/internal/error.hpp"
+
 #include <cmath>
-#include <stdexcept>
+#include <string>
+#include <utility>
 
 using namespace statforge;
 
@@ -9,9 +12,10 @@ namespace {
 constexpr double trueD = 1.0;
 constexpr double falseD = 0.0;
 
-auto const logic = [](double const lhs, double const rhs, TokenKind const kind) -> double {
-    bool const lhsBool{lhs != falseD};
-    bool const rhsBool{rhs != falseD};
+
+auto constexpr logic = [](double const lhs, double const rhs, TokenKind const kind) -> double {
+    bool const lhsBool = (lhs != 0.0) && !std::isnan(lhs);
+    bool const rhsBool = (rhs != 0.0) && !std::isnan(rhs);
 
     switch (kind) {
     case TokenKind::AndAnd:
@@ -31,11 +35,11 @@ auto const logic = [](double const lhs, double const rhs, TokenKind const kind) 
     case TokenKind::GreaterEqual:
         return lhs >= rhs ? trueD : falseD;
     default:
-        throw std::logic_error{"unreachable"};
+        unreachable("Invalid token in logic()" + std::to_string(std::to_underlying(kind)));
     }
 };
 
-auto const arithmetic = [](double const lhs, double const rhs, TokenKind const kind) -> double {
+auto constexpr arithmetic = [](double const lhs, double const rhs, TokenKind const kind) -> double {
     switch (kind) {
     case TokenKind::Plus:
         return lhs + rhs;
@@ -44,21 +48,20 @@ auto const arithmetic = [](double const lhs, double const rhs, TokenKind const k
     case TokenKind::Star:
         return lhs * rhs;
     case TokenKind::Slash:
-        if (rhs == 0) {
-            std::runtime_error{"divide by 0"};
-        }
+        //FIXME DIVIDE BY ZERO DETECTION std::fetestexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW)
         return lhs / rhs;
     case TokenKind::Caret:
         return std::pow(lhs, rhs);
     default:
-        throw std::logic_error{"unreachable"};
+        unreachable("Invalid token in arithmetic()" + std::to_string(std::to_underlying(kind)));
     }
 };
 
 } // namespace
 
+namespace statforge {
 
-double statforge::evaluate(ExpressionTree const& expression, Context const& context) {
+double evaluate(ExpressionTree const& expression, Context const& context) {
     std::function<double(ExpressionTree const&)> const visit = [&](ExpressionTree const& node) -> double {
         return std::visit(
             [&](auto const& actual) -> double {
@@ -70,7 +73,7 @@ double statforge::evaluate(ExpressionTree const& expression, Context const& cont
 
                 if constexpr (std::is_same_v<Node, Ref>) {
                     if (!context.cellLookup) {
-                        throw std::runtime_error{"no cell-lookup callback provided"};
+                        unreachable("Missing cell-lookup callback");
                     }
                     return context.cellLookup(actual.name);
                 }
@@ -85,7 +88,7 @@ double statforge::evaluate(ExpressionTree const& expression, Context const& cont
                     case TokenKind::Bang:
                         return rhs == 0.0 ? trueD : falseD;
                     default:
-                        throw std::logic_error{"bad unary op"};
+                        unreachable("Unknown unary op: " + std::to_string(std::to_underlying(actual.op)));
                     }
                 }
 
@@ -112,7 +115,7 @@ double statforge::evaluate(ExpressionTree const& expression, Context const& cont
                         return logic(lhs, rhs, actual.op);
 
                     default:
-                        throw std::logic_error{"unknown binary op"};
+                        unreachable("Unknown binary op: " + std::to_string(std::to_underlying(actual.op)));
                     }
                 }
 
@@ -124,16 +127,17 @@ double statforge::evaluate(ExpressionTree const& expression, Context const& cont
                 if constexpr (std::is_same_v<Node, Call>) {
                     if (actual.name == "root") {
                         if (actual.args.size() != 2U) {
-                            throw std::runtime_error{"root() expects exactly two arguments"};
+                            unreachable("root() expects exactly two arguments, provided: " +
+                                        std::to_string(actual.args.size()));
                         }
                         double const index{visit(*actual.args[0])};
                         double const value{visit(*actual.args[1])};
                         return std::pow(value, 1.0 / index);
                     }
-                    throw std::runtime_error{"unknown function '" + std::string(actual.name) + '\''};
+                    unreachable("Unknown function: " + std::string(actual.name));
                 }
 
-                throw std::logic_error{"unhandled node type in visitor"};
+                unreachable("Unhandled node type in visitor");
             },
             node);
     };
@@ -141,7 +145,7 @@ double statforge::evaluate(ExpressionTree const& expression, Context const& cont
     return visit(expression);
 }
 
-std::unordered_set<std::string_view> statforge::extractDependencies(ExpressionTree const& expression) {
+std::unordered_set<std::string_view> extractDependencies(ExpressionTree const& expression) {
     std::unordered_set<std::string_view> dependencies;
     std::vector<ExpressionTree const*> queue;
     queue.push_back(&expression);
@@ -174,3 +178,5 @@ std::unordered_set<std::string_view> statforge::extractDependencies(ExpressionTr
     }
     return dependencies;
 }
+
+} // namespace statforge

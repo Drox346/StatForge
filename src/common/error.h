@@ -6,8 +6,9 @@
 extern "C" {
 #endif
 
-typedef enum SF_Error {
+typedef enum SF_ErrorCode {
     SF_OK = 0,
+    SF_UNKNOWN,
     SF_ERR_NOTHING_CHANGED,
     SF_ERR_INVALID_DSL,
     SF_ERR_CELL_ALREADY_EXISTS,
@@ -16,9 +17,21 @@ typedef enum SF_Error {
     SF_ERR_DEPENDENCY_DOESNT_EXIST,
     SF_ERR_CELL_NOT_FOUND,
     SF_ERR_CELL_TYPE_MISMATCH,
-} SF_Error;
+} SF_ErrorCode;
 
-const char* sf_strerror(SF_Error err);
+typedef struct SF_Value {
+    SF_ErrorCode error;
+    double value;
+} SF_Value;
+
+SF_ErrorCode sf_set_error(SF_ErrorCode error, const char* fmt, ...);
+
+/**
+ * @brief returns the message of the last error, consuming that message
+ * 
+ * @return const char* 
+ */
+const char* sf_last_error(void);
 
 #ifdef __cplusplus
 }

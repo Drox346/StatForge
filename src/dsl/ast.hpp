@@ -1,4 +1,5 @@
 #pragma once
+#include "common/internal/error.hpp"
 #include "dsl/tokenizer.hpp"
 
 #include <memory>

@@ -20,6 +20,8 @@ void setCellValue(Engine& engine, double value);
 void setCellFormula(Engine& engine, std::string const& name, std::string const& formula);
 void setCellDependency(Engine& engine, std::string const& name, std::string const& dependencies);
 
+void getCellValue(Engine& engine, std::string const& name);
+
 
 /******* Rules ********/
 void createRule(Engine& engine, std::string const& name, std::string const& action, double initValue);

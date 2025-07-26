@@ -1,14 +1,12 @@
 #pragma once
 
+#include "common/internal/error.hpp"
+
 #include <cstdint>
 #include <string_view>
 #include <vector>
 
 namespace statforge {
-
-struct Span {
-    std::size_t line{1}, column{1};
-};
 
 enum class TokenKind : uint8_t {
     // single-char operators
@@ -48,11 +46,13 @@ struct Token {
     double number{};
 };
 
+using TokenResult = Result<std::vector<Token>>;
+
 class Tokenizer {
 public:
     explicit Tokenizer(std::string_view src) : _source{src} {
     }
-    std::vector<Token> tokenize();
+    TokenResult tokenize();
 
 private:
     [[noreturn]] void fail(char const* message) const;
@@ -63,7 +63,7 @@ private:
     void add(TokenKind kind);
     void number();
     void identifierOrKeyword();
-    void cellReference();
+    VoidResult cellReference();
 
     std::string_view _source;
     std::vector<Token> _tokens;

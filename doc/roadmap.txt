@@ -2,7 +2,7 @@
 
 #	Main Topics
 [ ] 1	Public API freeze                 Finalise names, headers, semantics, add header docs
-[ ] 2	Dependency validation             Unknown-ref + cycle detection inside setCellDependencies (rollback on error?)
+[X] 2	Dependency validation             Unknown-ref + cycle detection inside setCellDependencies (rollback on error?)
 [ ] 3	Bulk-import helpers               reserveCells(n) pre-sizes maps, createFormulaCellsBulk() parses/wires thousands of formulas in one pass
 [ ] 4	Intrinsic registry                Host registers name -> λ(span<double>) before any parse (e.g. sqrt, clamp, pow, abs, min, max, floor, ceil, round)
 [ ] 5	Rule -> Action system             Parse & execute "if <cond> then set <cell> to <expr>" rules; fires during evaluate
@@ -17,20 +17,19 @@
 [ ] 14	CI matrix                         GitHub Actions: linux & windows release builds + tests + perf budget gate
 [ ] 15	Optional: trace(cellId) helper    Return ordered list of formulas touched while resolving a cell (debug aid)
 [ ] 16  Cpp Modules                       Changing c++ headers to c++23 modules
+[ ] 17  undo()/revertTo()                 Adding an action stack and action ID. Allow reversing actions or even set to specific action ID. Config Struct to configure action stack size
 
 #   Minor Tasks/ToDo
-[ ] DSL "%" for fmod
-[ ] bool() func, approx for all comparison operators, 1e-14 > val > -1e-14 -> false
-[X] ALWAYS eval on api read value call. never expose dirty values
-[ ] isDirty(id) api
-[ ] forbid self reference
-[X] store cell type, puml border colour per cell type
-[ ] puml dump specific cell + max depth (-1 default)
-[ ] puml "legend right" to create a legend
-[X] puml show dirty cells as red
-[ ] puml formula field if formula cell
-[ ] puml links
-[ ] proper guard rails for different cell types for functions like setValue, setFormula, add/remove dependency
+- DSL "%" for fmod
+- bool() func, approx for all comparison operators, 1e-14 > val > -1e-14 -> false
+- isDirty(id) api
+- puml dump specific cell + max depth (-1 default)
+- puml "legend right" to create a legend
+- puml formula field if formula cell
+- puml links
+- proper guard rails for different cell types for functions like setValue, setFormula, add/remove dependency
+- rewriting evaluation logic to automatically use recursive and switch to iterative if recursion is too deep
+- store DSL of cell formulas, allow parser to create proper error msg when DSL error is encountered
 
 1.1:
 Persistence, save/load of compiled sheets

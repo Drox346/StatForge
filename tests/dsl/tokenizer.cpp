@@ -9,7 +9,9 @@ namespace {
 
 auto getTokenKinds(std::string_view src) {
     std::vector<TokenKind> retVal;
-    for (auto& token : Tokenizer{src}.tokenize()) {
+    auto tokenResult = Tokenizer{src}.tokenize();
+    REQUIRE(tokenResult);
+    for (auto& token : tokenResult.value()) {
         retVal.push_back(token.kind);
     }
     return retVal;
