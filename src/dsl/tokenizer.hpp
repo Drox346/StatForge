@@ -55,8 +55,6 @@ public:
     TokenResult tokenize();
 
 private:
-    [[noreturn]] void fail(char const* message) const;
-
     [[nodiscard]] char peek(std::size_t off = 0) const;
     [[nodiscard]] bool match(char expected);
     void advance();

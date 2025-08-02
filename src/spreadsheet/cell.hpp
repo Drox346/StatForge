@@ -16,9 +16,9 @@ enum class CellType : u_int8_t {
 
 struct Cell {
     CellFormula formula;
-    bool dirty{false};
     CellValue value{};
-    CellType type;
+    CellType type{};
+    bool dirty{false};
 };
 
 } // namespace statforge

@@ -6,6 +6,7 @@
 #include "dsl/evaluator.hpp"
 #include "dsl/parser.hpp"
 #include "dsl/tokenizer.hpp"
+#include "spreadsheet/cell.hpp"
 
 #include <cassert>
 #include <cstdint>
@@ -80,7 +81,7 @@ VoidResult Spreadsheet::createAggregatorCell(CellId const& id, std::vector<CellI
         return value;
     };
 
-    _cells[id] = {.formula = aggregate, .dirty = true, .value = 0, .type = CellType::Aggregator};
+    _cells[id] = {.formula = aggregate, .value = 0, .type = CellType::Aggregator, .dirty = true};
     _dirtyLeaves.emplace_back(id);
 
     return {};
@@ -120,7 +121,7 @@ VoidResult Spreadsheet::createFormulaCell(CellId const& id, std::string_view for
         return statforge::evaluate(*expr, ctx);
     };
 
-    _cells[id] = {.formula = std::move(thunk), .dirty = true, .value = 0.0, .type = CellType::Formula};
+    _cells[id] = {.formula = std::move(thunk), .value = 0.0, .type = CellType::Formula, .dirty = true};
     _dirtyLeaves.emplace_back(id);
     return {};
 }
@@ -128,10 +129,10 @@ VoidResult Spreadsheet::createFormulaCell(CellId const& id, std::string_view for
 VoidResult Spreadsheet::createValueCell(CellId const& id, double value) {
     if (_cells.contains(id)) [[unlikely]] {
         return std::unexpected(
-            buildErrorInfo(SF_ERR_CELL_ALREADY_EXISTS, std::format(R"(Cell "{}" already exist)", id)));
+            buildErrorInfo(SF_ERR_CELL_ALREADY_EXISTS, std::format(R"(Cell "{}" already exists)", id)));
     }
 
-    _cells[id] = {.formula = nullptr, .dirty = false, .value = value, .type = CellType::Value};
+    _cells[id] = {.formula = nullptr, .value = value, .type = CellType::Value, .dirty = false};
     return {};
 }
 
@@ -323,18 +324,6 @@ void Spreadsheet::evaluateIterative(CellId const& id) {
             stack.pop();
         }
     }
-}
-
-CellFormula Spreadsheet::makeThunk(std::unique_ptr<statforge::ExpressionTree> ast) {
-    auto expressionTree = std::shared_ptr<ExpressionTree>(ast.get());
-
-    return [this, expressionTree]() -> CellValue {
-        statforge::Context const ctx{.cellLookup = [this](std::string_view const name) -> double {
-            return _cells.at(resolveCellId(name)).value;
-        }};
-
-        return statforge::evaluate(*expressionTree, ctx);
-    };
 }
 
 VoidResult Spreadsheet::wireDependencies(CellId const& id,

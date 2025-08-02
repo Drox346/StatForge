@@ -6,13 +6,13 @@
 
 namespace statforge {
 
-using ExpressionPtrResult = Result<ExprPtr>;
+using ExprPtrResult = Result<ExprPtr>;
 
 class Parser {
 public:
-    explicit Parser(const std::vector<Token>& tokens) : _tokens{tokens} {
+    explicit Parser(std::vector<Token> const& tokens) : _tokens{tokens} {
     }
-    [[nodiscard]] ExpressionPtrResult parse(bool fold = true);
+    [[nodiscard]] ExprPtrResult parse(bool fold = true);
 
 private:
     using BindingPower = int;
@@ -23,12 +23,12 @@ private:
     bool match(TokenKind kind);
     const Token& advance();
 
-    ExpressionPtrResult parseExpression(BindingPower minBindingPower = 0);
-    ExpressionPtrResult parsePrimary();
+    ExprPtrResult parseExpression(BindingPower minBindingPower = 0);
+    ExprPtrResult parsePrimary();
 
     static BindingPower leftBindingPower(TokenKind);
     static BindingPower rightBindingPower(TokenKind);
-    static ExpressionPtrResult foldConstants(ExprPtr);
+    static ExprPtrResult foldConstants(ExprPtr);
 
     std::vector<Token> const& _tokens;
     std::size_t _pos{0};

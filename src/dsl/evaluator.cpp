@@ -1,5 +1,6 @@
 #include "dsl/evaluator.hpp"
 #include "common/internal/error.hpp"
+#include "dsl/tokenizer.hpp"
 
 #include <cmath>
 #include <string>
@@ -12,16 +13,16 @@ namespace {
 constexpr double trueD = 1.0;
 constexpr double falseD = 0.0;
 
+inline double logicalValue(double val) {
+    return static_cast<double>((val != 0.0) && !std::isnan(val));
+}
 
-auto constexpr logic = [](double const lhs, double const rhs, TokenKind const kind) -> double {
-    bool const lhsBool = (lhs != 0.0) && !std::isnan(lhs);
-    bool const rhsBool = (rhs != 0.0) && !std::isnan(rhs);
-
+auto constexpr logic = [](double lhs, double rhs, TokenKind const kind) -> double {
     switch (kind) {
     case TokenKind::AndAnd:
-        return lhsBool && rhsBool ? trueD : falseD;
+        return logicalValue(lhs) * logicalValue(rhs);
     case TokenKind::OrOr:
-        return lhsBool || rhsBool ? trueD : falseD;
+        return std::max(logicalValue(lhs), logicalValue(rhs));
     case TokenKind::EqualEqual:
         return lhs == rhs ? trueD : falseD;
     case TokenKind::BangEqual:
@@ -86,7 +87,7 @@ double evaluate(ExpressionTree const& expression, Context const& context) {
                     case TokenKind::Minus:
                         return -rhs;
                     case TokenKind::Bang:
-                        return rhs == 0.0 ? trueD : falseD;
+                        return logicalValue(rhs) == falseD ? trueD : falseD;
                     default:
                         unreachable("Unknown unary op: " + std::to_string(std::to_underlying(actual.op)));
                     }
@@ -121,7 +122,7 @@ double evaluate(ExpressionTree const& expression, Context const& context) {
 
                 if constexpr (std::is_same_v<Node, Ternary>) {
                     double const predicate{visit(*actual.cond)};
-                    return predicate != 0.0 ? visit(*actual.thenExpr) : visit(*actual.elseExpr);
+                    return logicalValue(predicate) == trueD ? visit(*actual.thenExpr) : visit(*actual.elseExpr);
                 }
 
                 if constexpr (std::is_same_v<Node, Call>) {

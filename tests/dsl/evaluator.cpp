@@ -37,7 +37,7 @@ TEST_CASE("power, unary minus, and precedence") {
 TEST_CASE("numeric boolean logic and comparisons") {
     auto const& astResult = makeAst("(3 > 2) && (4 == 4) || 0"); // (1 && 1) || 0  -> 1
     REQUIRE(astResult);
-    CHECK_EQ(evaluate(*astResult.value(), makeCtx()), doctest::Approx(1.0));
+    CHECK_EQ(evaluate(*astResult.value(), makeCtx()), 1.0);
 }
 
 TEST_CASE("five-level ternary chain evaluates correctly") {
@@ -99,5 +99,5 @@ TEST_CASE("very long alternating add/sub chain evaluates without stack overflow"
     src += "1";
     auto const& astResult = makeAst(src);
     REQUIRE(astResult);
-    CHECK_EQ(evaluate(*astResult.value(), makeCtx()), 1);
+    CHECK_EQ(evaluate(*astResult.value(), makeCtx()), 1.0);
 }

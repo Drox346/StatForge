@@ -24,7 +24,12 @@ typedef struct SF_Value {
     double value;
 } SF_Value;
 
-SF_ErrorCode sf_set_error(SF_ErrorCode error, const char* fmt, ...);
+/**
+ * @brief sets an error message, overwriting the previous message
+ * 
+ * @return  
+ */
+void sf_set_error(const char* fmt, ...);
 
 /**
  * @brief returns the message of the last error, consuming that message

@@ -9,6 +9,7 @@
 namespace statforge {
 
 VoidResult Parser::verify(ExprPtr const& /*ast*/) {
+    // FIXME IMPLEMENT
     return {};
 }
 
@@ -80,7 +81,7 @@ Parser::BindingPower Parser::rightBindingPower(TokenKind kind) {
     }
 }
 
-ExpressionPtrResult Parser::foldConstants(ExprPtr node) {
+ExprPtrResult Parser::foldConstants(ExprPtr node) {
     auto lit = [](double val, Span span) {
         return std::make_unique<ExpressionTree>(Literal{.value = val, .span = span});
     };
@@ -91,7 +92,7 @@ ExpressionPtrResult Parser::foldConstants(ExprPtr node) {
         [&](auto& actual) {
             using Node = std::decay_t<decltype(actual)>;
 
-            auto prop = [&](ExpressionPtrResult r) {
+            auto prop = [&](ExprPtrResult r) {
                 if (!r) {
                     error.emplace(std::move(r).error());
                     return ExprPtr{};
@@ -186,7 +187,7 @@ ExpressionPtrResult Parser::foldConstants(ExprPtr node) {
     return node;
 }
 
-ExpressionPtrResult Parser::parsePrimary() {
+ExprPtrResult Parser::parsePrimary() {
     const Token& token = advance();
     switch (token.kind) {
     case TokenKind::Number:
@@ -244,7 +245,7 @@ ExpressionPtrResult Parser::parsePrimary() {
     }
 }
 
-ExpressionPtrResult Parser::parseExpression(BindingPower minBindingPower) {
+ExprPtrResult Parser::parseExpression(BindingPower minBindingPower) {
     auto lhsResult = parsePrimary();
     if (!lhsResult) [[unlikely]] {
         return std::unexpected(std::move(lhsResult).error());
@@ -293,7 +294,7 @@ ExpressionPtrResult Parser::parseExpression(BindingPower minBindingPower) {
     return std::move(lhs);
 }
 
-ExpressionPtrResult Parser::parse(bool fold) {
+ExprPtrResult Parser::parse(bool fold) {
     auto astResult = parseExpression();
     if (!astResult) [[unlikely]] {
         return std::unexpected(std::move(astResult).error());

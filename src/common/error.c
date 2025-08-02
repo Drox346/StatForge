@@ -9,13 +9,11 @@
 static char sf_error_msg[MAX_ERROR_MSG_LENGTH];
 
 
-SF_ErrorCode sf_set_error(SF_ErrorCode error, const char* fmt, ...) {
+void sf_set_error(const char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vsnprintf(sf_error_msg, sizeof(sf_error_msg), fmt, ap);
     va_end(ap);
-
-    return error;
 }
 
 const char* sf_last_error(void) {

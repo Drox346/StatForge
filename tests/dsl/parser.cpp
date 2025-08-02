@@ -87,7 +87,6 @@ TEST_CASE("boolean keywords lower to numeric 0 / 1") {
     CHECK(sexpr("true && false") == "(&& 1 0)");
 }
 
-
 // error handling
 
 // TEST_CASE("missing right parenthesis") {

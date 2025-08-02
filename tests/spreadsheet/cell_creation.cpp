@@ -54,14 +54,20 @@ TEST_CASE("basic spreadsheet setup") {
 
     sheet.evaluate();
 
-    const auto finalStrVal = sheet.getCellValue("FinalStr");
-    const auto finalLifeVal = sheet.getCellValue("FinalLife");
+    const auto finalLife = sheet.getCellValue("FinalLife");
+    REQUIRE(finalLife);
 
-    REQUIRE(finalStrVal);
-    REQUIRE(finalLifeVal);
+    constexpr double Ag_FlatStr = 50.0 + 25.0;
+    constexpr double Ag_IncStr = 30.0 + 20.0;
+    constexpr double Ag_FlatLife = 100.0 + 40.0 + 20.0 + 10.0;
+    constexpr double Ag_IncLife = 10.0 + 15.0;
+    constexpr double Ag_MoreLife = 20.0 + 10.0;
+    constexpr double FinalStr = Ag_FlatStr * (1.0 + Ag_IncStr / 100.0);
+    constexpr double FlatLifeStr = FinalStr * 1.5;
+    constexpr double expectedFinalLife =
+        (Ag_FlatLife + FlatLifeStr) * (1.0 + Ag_IncLife / 100.0) * (1.0 + Ag_MoreLife / 100.0);
 
-    CHECK_EQ(*finalStrVal, doctest::Approx((50 + 25) * (1 + 50.0 / 100)).epsilon(0.001));
-    CHECK(*finalStrVal > 0);
+    CHECK_EQ(*finalLife, doctest::Approx(expectedFinalLife).epsilon(0.001));
 }
 
 TEST_CASE("cell creation errors") {

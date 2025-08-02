@@ -12,7 +12,7 @@
 [X] 9	Duplicate-dependency eliminator   Auto-dedupe <A> + <A> lists at wiring time
 [ ] 10	Execution metrics                 Per sheet struct: last eval ms/μs, cells visited, dirty leaf count
 [ ] 11	Memory / ASan                     clean build, document MB per-cell baseline
-[ ] 12	Docs & examples	                  README, quick-start, example stat dependency tree, performance tests, best practices, avoiding pitfalls
+[ ] 12	Docs & examples	                  README: introduction, goals, quick-start, example stat dependency tree, performance tests, best practices, avoiding pitfalls, how to contribute
 [ ] 13	Packaging                         cmake --install, vcpkg / conan ports
 [ ] 14	CI matrix                         GitHub Actions: linux & windows release builds + tests + perf budget gate
 [ ] 15	Optional: trace(cellId) helper    Return ordered list of formulas touched while resolving a cell (debug aid)
@@ -33,7 +33,7 @@
 
 1.1:
 Persistence, save/load of compiled sheets
-Support for more functions like exp, log, frac, sin, cos, etc
+Support for more functions like exp, log, frac, sin, cos, min, max, clamp etc
 Safe-math toggles (divide-by-zero clamp, pow overflow)
 Advanced progress callbacks / UI bars
 Byte-code VM revisit & further tuning
