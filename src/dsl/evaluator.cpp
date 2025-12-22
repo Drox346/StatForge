@@ -155,8 +155,8 @@ double evaluate(ExpressionTree const& expression, Context const& context) {
     return visit(expression);
 }
 
-std::unordered_set<std::string_view> extractDependencies(ExpressionTree const& expression) {
-    std::unordered_set<std::string_view> dependencies;
+std::vector<CellId> extractDependencies(ExpressionTree const& expression) {
+    std::vector<CellId> dependencies;
     std::vector<ExpressionTree const*> queue;
     queue.push_back(&expression);
 
@@ -168,7 +168,7 @@ std::unordered_set<std::string_view> extractDependencies(ExpressionTree const& e
                 using Node = std::decay_t<decltype(node)>;
 
                 if constexpr (std::is_same_v<Node, Ref>) {
-                    dependencies.insert(node.name);
+                    dependencies.emplace_back(node.name);
                 } else if constexpr (std::is_same_v<Node, Unary>) {
                     queue.push_back(node.rhs.get());
                 } else if constexpr (std::is_same_v<Node, Binary>) {
@@ -186,6 +186,10 @@ std::unordered_set<std::string_view> extractDependencies(ExpressionTree const& e
             },
             *current);
     }
+
+    std::ranges::sort(dependencies);
+    auto dupes = std::ranges::unique(dependencies);
+    dependencies.erase(dupes.begin(), dupes.end());
     return dependencies;
 }
 

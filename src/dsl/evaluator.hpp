@@ -5,7 +5,7 @@
 
 #include <functional>
 #include <string_view>
-#include <unordered_set>
+#include <vector>
 
 namespace statforge::dsl {
 
@@ -15,6 +15,6 @@ struct Context {
 
 double evaluate(ExpressionTree const& expression, Context const& context);
 
-std::unordered_set<std::string_view> extractDependencies(ExpressionTree const& expression);
+std::vector<CellId> extractDependencies(ExpressionTree const& expression);
 
 } // namespace statforge::dsl

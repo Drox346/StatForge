@@ -2,7 +2,7 @@
 
 namespace statforge::core {
 
-Engine::Engine(Spreadsheet::EvaluationType evaluationType) {
+Engine::Engine(spreadsheet::Executor::EvaluationType evaluationType) {
     ctx.spreadsheet.setEvaluationType(evaluationType);
 }
 

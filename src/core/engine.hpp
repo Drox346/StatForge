@@ -8,7 +8,8 @@ namespace statforge::core {
 
 class Engine {
 public:
-    Engine(Spreadsheet::EvaluationType evaluationType = Spreadsheet::EvaluationType::Iterative);
+    Engine(spreadsheet::Executor::EvaluationType evaluationType =
+               spreadsheet::Executor::EvaluationType::Iterative);
 
     Spreadsheet& spreadsheet();
     RuleEngine& ruleEngine();

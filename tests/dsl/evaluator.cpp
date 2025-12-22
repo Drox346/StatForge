@@ -85,12 +85,14 @@ TEST_CASE("cell reference multiplies correctly") {
     CHECK_EQ(evaluate(*astResult.value(), ctx), doctest::Approx(10.0));
 }
 
-TEST_CASE("dependencies preserve first-appearance order and duplicates") {
+TEST_CASE("dependencies") {
     std::string formula = "<a> + <b> * <a>";
     auto const& astResult = makeAst(formula);
     REQUIRE(astResult);
     auto const deps = extractDependencies(*astResult.value());
-    CHECK_EQ(deps, std::unordered_set<std::string_view>{"a", "b", "a"});
+    CHECK_EQ(deps.size(), 2);
+    CHECK(std::ranges::find(deps, "a") != deps.end());
+    CHECK(std::ranges::find(deps, "b") != deps.end());
 }
 
 TEST_CASE("very long alternating add/sub chain evaluates without stack overflow") {
