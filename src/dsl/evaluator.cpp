@@ -1,12 +1,14 @@
 #include "dsl/evaluator.hpp"
-#include "common/internal/error.hpp"
 #include "dsl/tokenizer.hpp"
+#include "error/internal/error.hpp"
+#include "types/definitions.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <string>
 #include <utility>
 
-using namespace statforge;
+using TokenKind = statforge::dsl::TokenKind;
 
 namespace {
 
@@ -36,7 +38,8 @@ auto constexpr logic = [](double lhs, double rhs, TokenKind const kind) -> doubl
     case TokenKind::GreaterEqual:
         return lhs >= rhs ? trueD : falseD;
     default:
-        unreachable("Invalid token in logic()" + std::to_string(std::to_underlying(kind)));
+        statforge::unreachable(
+            std::format("Invalid token in logic(): {}", std::to_underlying(kind)));
     }
 };
 
@@ -54,16 +57,18 @@ auto constexpr arithmetic = [](double const lhs, double const rhs, TokenKind con
     case TokenKind::Caret:
         return std::pow(lhs, rhs);
     default:
-        unreachable("Invalid token in arithmetic()" + std::to_string(std::to_underlying(kind)));
+        statforge::unreachable(
+            std::format("Invalid token in arithmetic(): {}", std::to_underlying(kind)));
     }
 };
 
 } // namespace
 
-namespace statforge {
+namespace statforge::dsl {
 
 double evaluate(ExpressionTree const& expression, Context const& context) {
-    std::function<double(ExpressionTree const&)> const visit = [&](ExpressionTree const& node) -> double {
+    std::function<double(ExpressionTree const&)> const visit =
+        [&](ExpressionTree const& node) -> double {
         return std::visit(
             [&](auto const& actual) -> double {
                 using Node = std::decay_t<decltype(actual)>;
@@ -89,7 +94,8 @@ double evaluate(ExpressionTree const& expression, Context const& context) {
                     case TokenKind::Bang:
                         return logicalValue(rhs) == falseD ? trueD : falseD;
                     default:
-                        unreachable("Unknown unary op: " + std::to_string(std::to_underlying(actual.op)));
+                        statforge::unreachable(
+                            std::format("Unknown unary op: {}", std::to_underlying(actual.op)));
                     }
                 }
 
@@ -116,13 +122,15 @@ double evaluate(ExpressionTree const& expression, Context const& context) {
                         return logic(lhs, rhs, actual.op);
 
                     default:
-                        unreachable("Unknown binary op: " + std::to_string(std::to_underlying(actual.op)));
+                        statforge::unreachable(
+                            std::format("Unknown binary op: {}", std::to_underlying(actual.op)));
                     }
                 }
 
                 if constexpr (std::is_same_v<Node, Ternary>) {
                     double const predicate{visit(*actual.cond)};
-                    return logicalValue(predicate) == trueD ? visit(*actual.thenExpr) : visit(*actual.elseExpr);
+                    return logicalValue(predicate) == trueD ? visit(*actual.thenExpr)
+                                                            : visit(*actual.elseExpr);
                 }
 
                 if constexpr (std::is_same_v<Node, Call>) {
@@ -135,10 +143,11 @@ double evaluate(ExpressionTree const& expression, Context const& context) {
                         double const value{visit(*actual.args[1])};
                         return std::pow(value, 1.0 / index);
                     }
-                    unreachable("Unknown function: " + std::string(actual.name));
+                    statforge::unreachable(
+                        std::format("Unknown function: {}", std::string(actual.name)));
                 }
 
-                unreachable("Unhandled node type in visitor");
+                statforge::unreachable("Unhandled node type in visitor");
             },
             node);
     };
@@ -180,4 +189,4 @@ std::unordered_set<std::string_view> extractDependencies(ExpressionTree const& e
     return dependencies;
 }
 
-} // namespace statforge
+} // namespace statforge::dsl

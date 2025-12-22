@@ -1,16 +1,17 @@
 #pragma once
 
-#include "common/internal/error.hpp"
+#include "error/internal/error.hpp"
 
 #include <cstdint>
 #include <string_view>
 #include <vector>
 
-namespace statforge {
+namespace statforge::dsl {
 
 enum class TokenKind : uint8_t {
-    // single-char operators
     EndOfFile = 0,
+
+    // single-char operators
     LeftParen,
     RightParen,
     Comma,
@@ -69,4 +70,4 @@ private:
     Span _here{};
 };
 
-} // namespace statforge
+} // namespace statforge::dsl

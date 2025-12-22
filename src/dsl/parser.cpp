@@ -1,15 +1,16 @@
 #include "dsl/parser.hpp"
-#include "common/error.h"
-#include "common/internal/error.hpp"
 #include "dsl/tokenizer.hpp"
+#include "error/error.h"
+#include "error/internal/error.hpp"
 
 #include <cmath>
 #include <expected>
 
-namespace statforge {
+namespace statforge::dsl {
 
 VoidResult Parser::verify(ExprPtr const& /*ast*/) {
     // FIXME IMPLEMENT
+    // verify that functions exist
     return {};
 }
 
@@ -124,8 +125,9 @@ ExprPtrResult Parser::foldConstants(ExprPtr node) {
                 if (auto const* lhs = std::get_if<Literal>(actual.lhs.get()))
                     if (auto const* rhs = std::get_if<Literal>(actual.rhs.get())) {
                         if (actual.op == TokenKind::Slash && rhs->value == 0.0) {
-                            error.emplace(
-                                buildErrorInfo(SF_ERR_INVALID_DSL, "Division by zero not allowed", actual.span));
+                            error.emplace(buildErrorInfo(SF_ERR_INVALID_DSL,
+                                                         "Division by zero not allowed",
+                                                         actual.span));
                             return;
                         }
                         double val{};
@@ -166,7 +168,8 @@ ExprPtrResult Parser::foldConstants(ExprPtr node) {
                 }
 
                 if (auto const* c = std::get_if<Literal>(actual.cond.get())) {
-                    node = (c->value != 0.0) ? std::move(actual.thenExpr) : std::move(actual.elseExpr);
+                    node =
+                        (c->value != 0.0) ? std::move(actual.thenExpr) : std::move(actual.elseExpr);
                 }
 
             } else if constexpr (std::is_same_v<Node, Call>) {
@@ -184,6 +187,7 @@ ExprPtrResult Parser::foldConstants(ExprPtr node) {
     if (error) {
         return std::unexpected(std::move(*error));
     }
+
     return node;
 }
 
@@ -202,74 +206,74 @@ ExprPtrResult Parser::parsePrimary() {
             if (!match(TokenKind::RightParen)) {
                 do {
                     auto astResult = parseExpression(0);
-                    if (!astResult) [[unlikely]] {
-                        return std::unexpected(std::move(astResult).error());
-                    }
+                    SF_RETURN_ERROR_IF_UNEXPECTED(astResult);
+
                     args.push_back(std::move(astResult).value());
                 } while (match(TokenKind::Comma));
-                if (!match(TokenKind::RightParen)) [[unlikely]] {
-                    return std::unexpected(
-                        buildErrorInfo(SF_ERR_INVALID_DSL, "Missing ')' after arguments", peek().span));
-                }
+                SF_RETURN_UNEXPECTED_IF_SPAN(!match(TokenKind::RightParen),
+                                             SF_ERR_INVALID_DSL,
+                                             "Missing ')' after arguments",
+                                             peek().span);
             }
             return std::make_unique<ExpressionTree>(
                 Call{.name = token.lexeme, .args = std::move(args), .span = token.span});
         }
-        return std::unexpected(
-            buildErrorInfo(SF_ERR_INVALID_DSL, "Bare identifier not allowed, use <id> for cell ref", token.span));
+        return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL,
+                                              "Bare identifier not allowed, use <id> for cell ref",
+                                              token.span));
 
     case TokenKind::Plus:
     case TokenKind::Minus:
     case TokenKind::Bang: {
         auto rhsResult = parseExpression(11); // unary precedence
-        if (!rhsResult) [[unlikely]] {
-            return std::unexpected(std::move(rhsResult).error());
-        }
+        SF_RETURN_ERROR_IF_UNEXPECTED(rhsResult);
+
         return std::make_unique<ExpressionTree>(
             Unary{.op = token.kind, .rhs = std::move(rhsResult).value(), .span = token.span});
     }
 
     case TokenKind::LeftParen: {
         auto innerResult = parseExpression(0);
-        if (!innerResult) [[unlikely]] {
-            return std::unexpected(std::move(innerResult).error());
-        }
-        if (!match(TokenKind::RightParen)) [[unlikely]] {
-            return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL, "Expected ')'", peek().span));
-        }
+        SF_RETURN_ERROR_IF_UNEXPECTED(innerResult);
+
+        SF_RETURN_UNEXPECTED_IF_SPAN(!match(TokenKind::RightParen),
+                                     SF_ERR_INVALID_DSL,
+                                     "Expected ')'",
+                                     peek().span);
+
         return innerResult;
     }
 
     default:
-        return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL, "Unexpected token in expression", peek().span));
+        return std::unexpected(
+            buildErrorInfo(SF_ERR_INVALID_DSL, "Unexpected token in expression", peek().span));
     }
 }
 
 ExprPtrResult Parser::parseExpression(BindingPower minBindingPower) {
     auto lhsResult = parsePrimary();
-    if (!lhsResult) [[unlikely]] {
-        return std::unexpected(std::move(lhsResult).error());
-    }
+    SF_RETURN_ERROR_IF_UNEXPECTED(lhsResult);
     auto lhs = std::move(lhsResult).value();
 
     while (true) {
         // ternary needs special peek
         if (match(TokenKind::Question)) {
-            auto thenEResult = parseExpression(0);
-            if (!thenEResult) [[unlikely]] {
-                return std::unexpected(std::move(thenEResult).error());
-            }
-            if (!match(TokenKind::Colon)) [[unlikely]] {
-                return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL, "Missing ':' in ternary", peek().span));
-            }
-            auto elseEResult = parseExpression(0);
-            if (!elseEResult) [[unlikely]] {
-                return std::unexpected(std::move(elseEResult).error());
-            }
-            lhs = std::make_unique<ExpressionTree>(Ternary{.cond = std::move(lhs),
-                                                           .thenExpr = std::move(thenEResult).value(),
-                                                           .elseExpr = std::move(elseEResult).value(),
-                                                           .span = peek(-1).span});
+            auto thenResult = parseExpression(0);
+            SF_RETURN_ERROR_IF_UNEXPECTED(thenResult);
+
+            SF_RETURN_UNEXPECTED_IF_SPAN(!match(TokenKind::Colon),
+                                         SF_ERR_INVALID_DSL,
+                                         "Missing ':' in ternary",
+                                         peek().span);
+
+            auto elseResult = parseExpression(0);
+            SF_RETURN_ERROR_IF_UNEXPECTED(elseResult);
+
+            lhs =
+                std::make_unique<ExpressionTree>(Ternary{.cond = std::move(lhs),
+                                                         .thenExpr = std::move(thenResult).value(),
+                                                         .elseExpr = std::move(elseResult).value(),
+                                                         .span = peek(-1).span});
             continue;
         }
 
@@ -282,9 +286,7 @@ ExprPtrResult Parser::parseExpression(BindingPower minBindingPower) {
         advance(); // consume operator
         BindingPower rhsBindingPower = rightBindingPower(nextOperator);
         auto rhsResult = parseExpression(rhsBindingPower);
-        if (!rhsResult) [[unlikely]] {
-            return std::unexpected(std::move(rhsResult).error());
-        }
+        SF_RETURN_ERROR_IF_UNEXPECTED(rhsResult);
 
         lhs = std::make_unique<ExpressionTree>(Binary{.op = nextOperator,
                                                       .lhs = std::move(lhs),
@@ -296,12 +298,12 @@ ExprPtrResult Parser::parseExpression(BindingPower minBindingPower) {
 
 ExprPtrResult Parser::parse(bool fold) {
     auto astResult = parseExpression();
-    if (!astResult) [[unlikely]] {
-        return std::unexpected(std::move(astResult).error());
-    }
-    if (!match(TokenKind::EndOfFile)) [[unlikely]] {
-        return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL, "Unexpected trailing tokens", peek().span));
-    }
+    SF_RETURN_ERROR_IF_UNEXPECTED(astResult);
+
+    SF_RETURN_UNEXPECTED_IF_SPAN(!match(TokenKind::EndOfFile),
+                                 SF_ERR_INVALID_DSL,
+                                 "Unexpected trailing tokens",
+                                 peek().span);
 
     if (fold) [[likely]] {
         astResult = foldConstants(std::move(astResult).value());
@@ -309,12 +311,10 @@ ExprPtrResult Parser::parse(bool fold) {
 
     if (astResult) {
         auto result = verify(astResult.value());
-        if (!result) [[unlikely]] {
-            return std::unexpected(std::move(result).error());
-        }
+        SF_RETURN_ERROR_IF_UNEXPECTED(result);
     }
 
     return astResult;
 }
 
-} // namespace statforge
+} // namespace statforge::dsl

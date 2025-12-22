@@ -2,8 +2,8 @@
 
 #include <doctest/doctest.h>
 
-using statforge::Tokenizer;
-using statforge::TokenKind;
+using statforge::dsl::Tokenizer;
+using statforge::dsl::TokenKind;
 
 namespace {
 

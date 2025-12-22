@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/internal/definitions.hpp"
+#include "types/definitions.hpp"
 
 namespace statforge {
 
@@ -8,5 +8,5 @@ struct Rule {
     ActionType action;
     RuleValueType previousValue{};
 };
-    
+
 } // namespace statforge

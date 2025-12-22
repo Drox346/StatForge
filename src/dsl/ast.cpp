@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-namespace statforge {
+namespace statforge::dsl {
 
 namespace {
 

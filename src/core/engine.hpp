@@ -4,7 +4,7 @@
 #include "spreadsheet/spreadsheet.hpp"
 #include "state/rule_engine.hpp"
 
-namespace statforge {
+namespace statforge::core {
 
 class Engine {
 public:
@@ -14,11 +14,11 @@ public:
     RuleEngine& ruleEngine();
 
     void evaluate();
-    
+
     void reset();
 
 private:
     Context ctx;
 };
-    
-} // namespace statforge
+
+} // namespace statforge::core

@@ -1,12 +1,12 @@
 #include "c.h"
-#include "common/error.h"
 #include "core/engine.hpp"
 #include "dsl/error.hpp"
+#include "error/error.h"
 
 #include <exception>
 
 struct SF_Engine {
-    statforge::Engine engine;
+    statforge::core::Engine engine;
 };
 
 SF_Engine* sf_create_engine() {
@@ -30,7 +30,7 @@ SF_ErrorCode sf_create_formula_cell(SF_Engine* engine, const char* name, const c
     try {
         engine->engine.spreadsheet().createFormulaCell(name, formula);
         return SF_OK;
-    } catch (const statforge::DslError& ex) {
+    } catch (const statforge::dsl::DslError& ex) {
         return SF_ERR_INVALID_DSL;
     }
 }

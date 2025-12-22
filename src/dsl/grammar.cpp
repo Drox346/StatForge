@@ -1,5 +1,3 @@
 #include "grammar.hpp"
 
-namespace statforge {
-
-} // namespace statforge
+namespace statforge::dsl {} // namespace statforge::dsl

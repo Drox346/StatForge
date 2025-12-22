@@ -1,12 +1,12 @@
 #include "tokenizer.hpp"
-#include "common/internal/error.hpp"
+#include "error/internal/error.hpp"
 
 #include <cctype>
 #include <charconv>
 #include <expected>
 #include <format>
 
-namespace statforge {
+namespace statforge::dsl {
 
 namespace {
 
@@ -82,10 +82,11 @@ VoidResult Tokenizer::cellReference() {
         advance();
     }
     const auto name = _source.substr(start, _pos - start);
-    if (peek() != '>') {
-        return std::unexpected(
-            buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(Unterminated cell reference)"), _here));
-    }
+    SF_RETURN_UNEXPECTED_IF_SPAN(peek() != '>',
+                                 SF_ERR_INVALID_DSL,
+                                 std::format(R"(Unterminated cell reference)"),
+                                 _here);
+
     advance(); // consume '>'
     _tokens.push_back(Token{.kind = TokenKind::CellRef, .lexeme = name, .span = begin});
 
@@ -146,10 +147,7 @@ TokenResult Tokenizer::tokenize() {
                 _pos--;
                 _here.column--;
                 auto result = cellReference();
-                if (!result) {
-                    return std::unexpected(std::move(result).error());
-                }
-
+                SF_RETURN_ERROR_IF_UNEXPECTED(result);
             } else {
                 add(TokenKind::Less);
             }
@@ -208,4 +206,4 @@ TokenResult Tokenizer::tokenize() {
     return _tokens;
 }
 
-} // namespace statforge
+} // namespace statforge::dsl

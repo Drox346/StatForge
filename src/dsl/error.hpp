@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-namespace statforge {
+namespace statforge::dsl {
 
 struct DslError final : std::runtime_error {
     Span const span;
@@ -12,4 +12,4 @@ struct DslError final : std::runtime_error {
     }
 };
 
-} // namespace statforge
+} // namespace statforge::dsl

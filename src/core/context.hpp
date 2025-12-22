@@ -14,5 +14,5 @@ struct Context {
         ruleEngine.reset();
     }
 };
-    
+
 } // namespace statforge

@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "../common/error.h"
+#include "../error/error.h"
 
 typedef struct SF_Engine SF_Engine;
 

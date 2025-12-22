@@ -1,7 +1,3 @@
 #pragma once
 
-namespace statforge {
-
-
-    
-} // namespace statforge
+namespace statforge::dsl {} // namespace statforge::dsl

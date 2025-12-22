@@ -1,10 +1,10 @@
 #pragma once
 
-#include "common/internal/definitions.hpp"
+#include "types/definitions.hpp"
 
 #include <functional>
 
-namespace statforge {
+namespace statforge::spreadsheet {
 
 using CellFormula = std::function<CellValue()>;
 
@@ -21,4 +21,4 @@ struct Cell {
     bool dirty{false};
 };
 
-} // namespace statforge
+} // namespace statforge::spreadsheet

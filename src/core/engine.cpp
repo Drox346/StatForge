@@ -1,6 +1,6 @@
 #include "engine.hpp"
 
-namespace statforge {
+namespace statforge::core {
 
 Engine::Engine(Spreadsheet::EvaluationType evaluationType) {
     ctx.spreadsheet.setEvaluationType(evaluationType);
@@ -15,11 +15,10 @@ RuleEngine& Engine::ruleEngine() {
 }
 
 void Engine::evaluate() {
-    
 }
 
 void Engine::reset() {
     ctx.reset();
 }
 
-} // namespace statforge
+} // namespace statforge::core

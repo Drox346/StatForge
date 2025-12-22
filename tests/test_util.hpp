@@ -1,5 +1,8 @@
-#include "common/error.h"
-#include "common/internal/error.hpp"
+#include "error/error.h"
+#include "error/internal/error.hpp"
+#include "spreadsheet/spreadsheet.hpp"
+#include "types/definitions.hpp"
+
 #include <doctest/doctest.h>
 
 template <typename T>

@@ -4,26 +4,30 @@
 
 #include <cstddef>
 #include <doctest/doctest.h>
+#include <string_view>
 
-using statforge::evaluate;
-using statforge::extractDependencies;
-using statforge::Parser;
-using statforge::Tokenizer;
+using statforge::dsl::Context;
+using statforge::dsl::evaluate;
+using statforge::dsl::extractDependencies;
+using statforge::dsl::Parser;
+using statforge::dsl::Tokenizer;
 
 namespace {
 
 auto makeAst(std::string const& src) {
-    return Tokenizer{src}.tokenize().and_then([](auto const& tokens) { return Parser{tokens}.parse(); });
+    return Tokenizer{src}.tokenize().and_then(
+        [](auto const& tokens) { return Parser{tokens}.parse(); });
 }
 
-statforge::Context makeCtx(std::unordered_map<std::string, double> values = {}) {
-    return statforge::Context{.cellLookup = [values = std::move(values)](std::string_view const& name) -> double {
-        auto const iter = values.find(std::string{name});
-        if (iter == values.end()) {
-            throw std::runtime_error{"unknown cell '" + std::string{name} + '\''};
-        }
-        return iter->second;
-    }};
+Context makeCtx(std::unordered_map<std::string, double> values = {}) {
+    return Context{
+        .cellLookup = [values = std::move(values)](std::string_view const& name) -> double {
+            auto const iter = values.find(std::string{name});
+            if (iter == values.end()) {
+                throw std::runtime_error{"unknown cell '" + std::string{name} + '\''};
+            }
+            return iter->second;
+        }};
 }
 
 } // namespace

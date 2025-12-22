@@ -15,6 +15,8 @@ static std::string hashId(statforge::CellId const& id) {
 
 namespace statforge::debug {
 
+using namespace spreadsheet;
+
 void logCells(std::string const& fileName,
               std::unordered_map<CellId, Cell> const& cells,
               std::unordered_map<CellId, std::vector<CellId>> const& dependencyMap) {

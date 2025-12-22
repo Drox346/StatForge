@@ -1,10 +1,10 @@
 #pragma once
 
-#include "common/internal/error.hpp"
 #include "dsl/ast.hpp"
 #include "dsl/tokenizer.hpp"
+#include "error/internal/error.hpp"
 
-namespace statforge {
+namespace statforge::dsl {
 
 using ExprPtrResult = Result<ExprPtr>;
 
@@ -34,4 +34,4 @@ private:
     std::size_t _pos{0};
 };
 
-} // namespace statforge
+} // namespace statforge::dsl

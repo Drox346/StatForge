@@ -4,9 +4,9 @@
 
 #include <doctest/doctest.h>
 
-using statforge::dumpSExpr;
-using statforge::Parser;
-using statforge::Tokenizer;
+using statforge::dsl::dumpSExpr;
+using statforge::dsl::Parser;
+using statforge::dsl::Tokenizer;
 
 // helpers
 

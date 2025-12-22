@@ -1,13 +1,13 @@
 #pragma once
-#include "common/internal/error.hpp"
 #include "dsl/tokenizer.hpp"
+#include "error/internal/error.hpp"
 
 #include <memory>
 #include <string_view>
 #include <variant>
 #include <vector>
 
-namespace statforge {
+namespace statforge::dsl {
 
 struct ExpressionTree; // fwd
 using ExprPtr = std::unique_ptr<ExpressionTree>;
@@ -48,4 +48,4 @@ struct ExpressionTree : std::variant<Literal, Ref, Unary, Binary, Ternary, Call>
 
 std::string dumpSExpr(const ExpressionTree&);
 
-} // namespace statforge
+} // namespace statforge::dsl
