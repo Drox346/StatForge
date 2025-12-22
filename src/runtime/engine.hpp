@@ -1,10 +1,10 @@
 #pragma once
 
-#include "core/context.hpp"
+#include "runtime/context.hpp"
 #include "spreadsheet/spreadsheet.hpp"
 #include "state/rule_engine.hpp"
 
-namespace statforge::core {
+namespace statforge::runtime {
 
 class Engine {
 public:
@@ -22,4 +22,4 @@ private:
     Context ctx;
 };
 
-} // namespace statforge::core
+} // namespace statforge::runtime

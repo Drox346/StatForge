@@ -1,12 +1,12 @@
 #include "c.h"
-#include "core/engine.hpp"
 #include "dsl/error.hpp"
 #include "error/error.h"
+#include "runtime/engine.hpp"
 
 #include <exception>
 
 struct SF_Engine {
-    statforge::core::Engine engine;
+    statforge::runtime::Engine engine;
 };
 
 SF_Engine* sf_create_engine() {

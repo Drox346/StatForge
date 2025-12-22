@@ -1,6 +1,6 @@
 #include "engine.hpp"
 
-namespace statforge::core {
+namespace statforge::runtime {
 
 Engine::Engine(spreadsheet::Executor::EvaluationType evaluationType) {
     ctx.spreadsheet.setEvaluationType(evaluationType);
@@ -21,4 +21,4 @@ void Engine::reset() {
     ctx.reset();
 }
 
-} // namespace statforge::core
+} // namespace statforge::runtime
