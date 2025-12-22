@@ -9,7 +9,11 @@ add_executable(
     dsl/parser.cpp
     dsl/evaluator.cpp
 
+    spreadsheet/action_draft.cpp
     spreadsheet/cell_creation.cpp
+
+    benchmarks/balanced_binary_tree.cpp
+    benchmarks/chains.cpp
 )
 
 target_link_libraries(test_statforge PRIVATE StatForge doctest::doctest)

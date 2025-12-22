@@ -1,4 +1,5 @@
 #include "../test_util.hpp"
+#include "error/error.h"
 #include "spreadsheet/spreadsheet.hpp"
 
 #include <doctest/doctest.h>
@@ -11,10 +12,10 @@ TEST_CASE("create formula cell") {
     const std::string cellNameVal1("value_cell1");
     const std::string cellNameVal2("value_cell2");
     const std::string cellNameFormula("formula_cell");
-    spreadsheet.createValueCell(cellNameVal1, 1);
-    spreadsheet.createValueCell(cellNameVal2, 2);
-    spreadsheet.createFormulaCell(cellNameFormula, "<value_cell1> + <value_cell2>");
-    spreadsheet.evaluate();
+    CHECK(spreadsheet.createValueCell(cellNameVal1, 1));
+    CHECK(spreadsheet.createValueCell(cellNameVal2, 2));
+    CHECK(spreadsheet.createFormulaCell(cellNameFormula, "<value_cell1> + <value_cell2>"));
+    CHECK(spreadsheet.evaluate());
 
     const auto cellValue = spreadsheet.getCellValue(cellNameFormula);
     REQUIRE(cellValue);
@@ -24,35 +25,38 @@ TEST_CASE("create formula cell") {
 TEST_CASE("basic spreadsheet setup") {
     Spreadsheet sheet;
 
-    sheet.createValueCell("FlatStrTree", 50);
-    sheet.createValueCell("FlatStrGear", 25);
-    sheet.createValueCell("IncStrTree", 30);
-    sheet.createValueCell("IncStrGear", 20);
+    CHECK(sheet.createValueCell("FlatStrTree", 50));
+    CHECK(sheet.createValueCell("FlatStrGear", 25));
+    CHECK(sheet.createValueCell("IncStrTree", 30));
+    CHECK(sheet.createValueCell("IncStrGear", 20));
 
-    sheet.createValueCell("BaseLife", 100);
-    sheet.createValueCell("FlatLifeLevel", 40);
-    sheet.createValueCell("FlatLifeGear", 20);
-    sheet.createValueCell("FlatLifeTree", 10);
-    sheet.createValueCell("LifePerStr", 1.5);
-    sheet.createValueCell("CharLevel", 40);
+    CHECK(sheet.createValueCell("BaseLife", 100));
+    CHECK(sheet.createValueCell("FlatLifeLevel", 40));
+    CHECK(sheet.createValueCell("FlatLifeGear", 20));
+    CHECK(sheet.createValueCell("FlatLifeTree", 10));
+    CHECK(sheet.createValueCell("LifePerStr", 1.5));
+    CHECK(sheet.createValueCell("CharLevel", 40));
 
-    sheet.createValueCell("IncLifeGear", 10);
-    sheet.createValueCell("IncLifeTree", 15);
-    sheet.createValueCell("MoreLifeTree", 20);
-    sheet.createValueCell("MoreLifeGear", 10);
+    CHECK(sheet.createValueCell("IncLifeGear", 10));
+    CHECK(sheet.createValueCell("IncLifeTree", 15));
+    CHECK(sheet.createValueCell("MoreLifeTree", 20));
+    CHECK(sheet.createValueCell("MoreLifeGear", 10));
 
-    sheet.createAggregatorCell("Ag_FlatStr", {"FlatStrTree", "FlatStrGear"});
-    sheet.createAggregatorCell("Ag_IncStr", {"IncStrTree", "IncStrGear"});
-    sheet.createAggregatorCell("Ag_FlatLife", {"FlatLifeLevel", "FlatLifeGear", "FlatLifeTree", "BaseLife"});
-    sheet.createAggregatorCell("Ag_IncLife", {"IncLifeGear", "IncLifeTree"});
-    sheet.createAggregatorCell("Ag_MoreLife", {"MoreLifeGear", "MoreLifeTree"});
+    CHECK(sheet.createAggregatorCell("Ag_FlatStr", {"FlatStrTree", "FlatStrGear"}));
+    CHECK(sheet.createAggregatorCell("Ag_IncStr", {"IncStrTree", "IncStrGear"}));
+    CHECK(
+        sheet.createAggregatorCell("Ag_FlatLife",
+                                   {"FlatLifeLevel", "FlatLifeGear", "FlatLifeTree", "BaseLife"}));
+    CHECK(sheet.createAggregatorCell("Ag_IncLife", {"IncLifeGear", "IncLifeTree"}));
+    CHECK(sheet.createAggregatorCell("Ag_MoreLife", {"MoreLifeGear", "MoreLifeTree"}));
 
-    sheet.createFormulaCell("FinalStr", "<Ag_FlatStr> * (1 + <Ag_IncStr> / 100)");
-    sheet.createFormulaCell("FlatLifeStr", "<FinalStr> * <LifePerStr>");
-    sheet.createFormulaCell("FinalLife",
-                            "(<Ag_FlatLife> + <FlatLifeStr>) * (1 + <Ag_IncLife> / 100) * (1 + <Ag_MoreLife> / 100)");
+    CHECK(sheet.createFormulaCell("FinalStr", "<Ag_FlatStr> * (1 + <Ag_IncStr> / 100)"));
+    CHECK(sheet.createFormulaCell("FlatLifeStr", "<FinalStr> * <LifePerStr>"));
+    CHECK(sheet.createFormulaCell(
+        "FinalLife",
+        "(<Ag_FlatLife> + <FlatLifeStr>) * (1 + <Ag_IncLife> / 100) * (1 + <Ag_MoreLife> / 100)"));
 
-    sheet.evaluate();
+    CHECK(sheet.evaluate());
 
     const auto finalLife = sheet.getCellValue("FinalLife");
     REQUIRE(finalLife);
@@ -91,15 +95,13 @@ TEST_CASE("cell creation errors") {
         CHECK_EQ(*aggVal, 4);
     }
     SUBCASE("dependency doesn't exit") {
-        checkErrorCode(sheet.createFormulaCell("formula", "3 - <sdfdfgdfgdfg>"), SF_ERR_DEPENDENCY_DOESNT_EXIST);
+        checkErrorCode(sheet.createFormulaCell("formula", "3 - <sdfdfgdfgdfg>"),
+                       SF_ERR_DEPENDENCY_DOESNT_EXIST);
         checkErrorCode(sheet.createAggregatorCell("agg", {"fdshosadfojksdfoijksdrfff"}),
                        SF_ERR_DEPENDENCY_DOESNT_EXIST);
 
         checkErrorCode(sheet.getCellValue("formula"), SF_ERR_CELL_NOT_FOUND);
         checkErrorCode(sheet.getCellValue("agg"), SF_ERR_CELL_NOT_FOUND);
-
-        auto asdsad = sheet.getCellValue("agg");
-        int sadasd{};
     }
     SUBCASE("ill-formed dsl") {
         checkErrorCode(sheet.createFormulaCell("formula1", "3 - <<>"), SF_ERR_INVALID_DSL);
@@ -109,100 +111,77 @@ TEST_CASE("cell creation errors") {
 
 TEST_CASE("cell manipulation errors") {
     Spreadsheet sheet;
+    CHECK(sheet.createValueCell("value1", 50));
+    CHECK(sheet.createValueCell("value2", 60));
+    CHECK(sheet.createFormulaCell("formula1", "<value1>"));
+    CHECK(sheet.createFormulaCell("formula2", "<value2>"));
+    CHECK(sheet.createAggregatorCell("agg1", {"value1"}));
+    CHECK(sheet.createAggregatorCell("agg2", {"value2"}));
 
     SUBCASE("cyclic dependencies") {
-        // TODO
-        // - changeCellFormula (formula)
-        // - setDependencies (agg)
+        constexpr size_t distance = 100;
+
+        CHECK(sheet.createFormulaCell("f0", "<value1>"));
+        for (size_t i = 1; i < distance; ++i) {
+            CHECK(sheet.createFormulaCell("f" + std::to_string(i),
+                                          "<f" + std::to_string(i - 1) + ">"));
+        }
+        checkErrorCode(sheet.setCellFormula("f0", "<f" + std::to_string(distance - 1) + ">"),
+                       SF_ERR_DEPENDENCY_LOOP);
+
+        CHECK(sheet.createAggregatorCell("a0", {"value1"}));
+        for (size_t i = 1; i < distance; ++i) {
+            CHECK(
+                sheet.createAggregatorCell("a" + std::to_string(i), {"a" + std::to_string(i - 1)}));
+        }
+        checkErrorCode(sheet.setCellDependencies("a0", {"a" + std::to_string(distance - 1)}),
+                       SF_ERR_DEPENDENCY_LOOP);
     }
     SUBCASE("self reference") {
-        // TODO
-        // - changeCellFormula (formula)
-        // - setDependencies (agg)
+        checkErrorCode(sheet.createFormulaCell("formula3", "<formula3>"), SF_ERR_SELF_REFERENCE);
+        checkErrorCode(sheet.createAggregatorCell("agg3", {"agg3"}), SF_ERR_SELF_REFERENCE);
+
+        checkErrorCode(sheet.setCellFormula("formula1", "<formula1>"), SF_ERR_SELF_REFERENCE);
+        checkErrorCode(sheet.setCellDependencies("agg1", {"agg1"}), SF_ERR_SELF_REFERENCE);
     }
-    SUBCASE("value of cell hasnt changed") {
-        CHECK(sheet.createValueCell("val", 3));
+    SUBCASE("wrong cell types") {
+        SUBCASE("setValue") {
+            checkErrorCode(sheet.setCellValue("formula1", 10), SF_ERR_CELL_TYPE_MISMATCH);
+            checkValue(sheet, "formula1", 50);
 
-        const auto val = sheet.getCellValue("val");
-        REQUIRE(val);
-        CHECK_EQ(*val, 3);
+            checkErrorCode(sheet.setCellValue("agg1", 10), SF_ERR_CELL_TYPE_MISMATCH);
+            checkValue(sheet, "agg1", 50);
 
-        checkErrorCode(sheet.setCellValue("val", 3), SF_ERR_NOTHING_CHANGED);
+            CHECK(sheet.setCellValue("value1", 10));
+            checkValue(sheet, "value1", 10);
+        }
+        SUBCASE("setFormula") {
+            checkErrorCode(sheet.setCellFormula("value1", "<value2>"), SF_ERR_CELL_TYPE_MISMATCH);
+            checkValue(sheet, "value1", 50);
 
-        const auto aggVal = sheet.getCellValue("val");
-        REQUIRE(val);
-        CHECK_EQ(*val, 3);
+            checkErrorCode(sheet.setCellFormula("agg1", "<value2>"), SF_ERR_CELL_TYPE_MISMATCH);
+            checkValue(sheet, "agg1", 50);
+
+            CHECK(sheet.setCellFormula("formula1", "<value2>"));
+            checkValue(sheet, "formula1", 60);
+        }
+        SUBCASE("setDependencies") {
+            checkErrorCode(sheet.setCellDependencies("value1", {"value2"}),
+                           SF_ERR_CELL_TYPE_MISMATCH);
+            checkValue(sheet, "value1", 50);
+
+            checkErrorCode(sheet.setCellDependencies("formula1", {"value2"}),
+                           SF_ERR_CELL_TYPE_MISMATCH);
+            checkValue(sheet, "formula1", 50);
+
+            CHECK(sheet.setCellDependencies("agg1", {"value2"}));
+            checkValue(sheet, "agg1", 60);
+        }
     }
     SUBCASE("ill-formed dsl") {
-        // TODO changeCellFormula
+        checkErrorCode(sheet.setCellFormula("sdsflgjksdfjlksdfjlk", "1"), SF_ERR_CELL_NOT_FOUND);
+        checkErrorCode(sheet.setCellFormula("formula1", "<>324werwe534dsf"), SF_ERR_INVALID_DSL);
+        checkErrorCode(sheet.setCellFormula("formula1", "<dfdfsgggdfgdfsgdfsg>"),
+                       SF_ERR_DEPENDENCY_DOESNT_EXIST);
     }
-}
-
-#include <chrono>
-#include <iostream>
-#include <random>
-TEST_CASE("benchmark cell dependency evaluation") {
-    constexpr size_t cellTarget = 100'000 / 2;
-    size_t cells = 0;
-    Spreadsheet sheet;
-
-    sheet.createValueCell("root", 1);
-    sheet.createFormulaCell("a0", "<root>");
-    size_t lastRowCount = 1;
-
-    auto t6 = std::chrono::steady_clock::now();
-    for (size_t i = 0; i < cellTarget;) {
-
-        for (size_t j = i + 1; j - (i + 1) != lastRowCount;) {
-            sheet.createFormulaCell("a" + std::to_string(j), "root(2, <a" + std::to_string(i) + ">) + 1");
-            j++;
-            sheet.createFormulaCell("a" + std::to_string(j), "root(2, <a" + std::to_string(i) + ">) + 1");
-            j++;
-            i++;
-
-            cells = j;
-        }
-        lastRowCount *= 2;
-    }
-    auto t7 = std::chrono::steady_clock::now();
-
-    std::cout << "cells: " << cells << "\n";
-
-    // initial clear dirty
-    auto t0 = std::chrono::steady_clock::now();
-    sheet.evaluate();
-    auto t1 = std::chrono::steady_clock::now();
-
-    // dirty propagation
-    auto t2 = std::chrono::steady_clock::now();
-    sheet.setCellValue("root", 2);
-    auto t3 = std::chrono::steady_clock::now();
-
-    // update all cells
-    auto t4 = std::chrono::steady_clock::now();
-    sheet.evaluate();
-    auto t5 = std::chrono::steady_clock::now();
-    static std::random_device dev;
-    static std::mt19937 rng(dev());
-
-    std::uniform_int_distribution<std::mt19937::result_type> dist(1, 200);
-    auto t8 = std::chrono::steady_clock::now();
-    // for (size_t i = 0; i < 2000; ++i) {
-    //     sheet.setCellValue("root", dist(rng));
-    //     sheet.evaluate();
-    // }
-    auto t9 = std::chrono::steady_clock::now();
-
-
-    auto ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
-    auto ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
-    auto ms3 = std::chrono::duration_cast<std::chrono::milliseconds>(t5 - t4).count();
-    auto ms4 = std::chrono::duration_cast<std::chrono::milliseconds>(t7 - t6).count();
-    auto ms5 = std::chrono::duration_cast<std::chrono::milliseconds>(t9 - t8).count();
-    std::cout << "Creation of " << cells << " formula cells: " << ms4 << "ms\n"
-              << "Initial evaluate after creation: " << ms1 << "ms\n"
-              << "Setting " << cells << " cells to dirty: " << ms2 << "ms\n"
-              << "Evaluate " << cells << " dirty cells: " << ms3 << "ms\n"
-        //<< "2000x random values + recalcs: " << ms5 << "ms\n"
-        ;
 }
