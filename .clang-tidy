@@ -11,13 +11,16 @@ Checks: >
   misc-use-anonymous-namespace,
   google-explicit-constructor,
   -modernize-use-trailing-return-type,
+  -modernize-use-using,
   -bugprone-exception-escape,
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-avoid-do-while,
   -bugprone-easily-swappable-parameters,
   -cppcoreguidelines-non-private-member-variables-in-classes,
-  -bugprone-unused-return-value
+  -bugprone-unused-return-value,
+  -readability-implicit-bool-conversion,
+  -cppcoreguidelines-pro-type-const-cast
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 CheckOptions:

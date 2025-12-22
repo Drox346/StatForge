@@ -23,10 +23,10 @@
 - DSL "%" for fmod
 - bool() func, approx for all comparison operators, 1e-14 > val > -1e-14 -> false
 - isDirty(id) api
-- puml dump specific cell + max depth (-1 default)
-- puml "legend right" to create a legend
-- puml formula field if formula cell
-- puml links
+- .dot dump specific cell + max depth (-1 default)
+- .dot "legend right" to create a legend
+- .dot formula field if formula cell
+- .dot links
 - proper guard rails for different cell types for functions like setValue, setFormula, add/remove dependency
 - rewriting evaluation logic to automatically use recursive and switch to iterative if recursion is too deep
 - store DSL of cell formulas, allow parser to create proper error msg when DSL error is encountered
