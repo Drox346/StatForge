@@ -1,5 +1,4 @@
 .
-├── all_sources.txt
 ├── clear.sh
 ├── CMakeLists.txt
 ├── doc
@@ -12,7 +11,6 @@
 │   ├── notes_previous_version.txt
 │   ├── roadmap.txt
 │   ├── rule_action_draft.txt
-│   ├── spreadsheet_split_concept.drawio
 │   └── tree_structure.txt
 ├── example
 │   ├── CMakeLists.txt
@@ -24,6 +22,8 @@
 │       └── doctest_LICENSE.txt
 ├── LICENSE.txt
 ├── README.md
+├── run_benchmarks_perf.sh
+├── run_benchmarks.sh
 ├── run.sh
 ├── run_tests.sh
 ├── src
@@ -33,10 +33,6 @@
 │   │   ├── cpp.cpp
 │   │   └── cpp.hpp
 │   ├── CMakeLists.txt
-│   ├── runtime
-│   │   ├── context.hpp
-│   │   ├── engine.cpp
-│   │   └── engine.hpp
 │   ├── debug
 │   │   ├── puml.cpp
 │   │   └── puml.hpp
@@ -56,9 +52,17 @@
 │   │   ├── error.c
 │   │   ├── error.h
 │   │   └── internal
-│   │       ├── error.cpp
 │   │       └── error.hpp
-│   ├── spreadsheet
+│   ├── runtime
+│   │   ├── context.hpp
+│   │   ├── engine.cpp
+│   │   └── engine.hpp
+│   ├── state
+│   │   ├── rule.cpp
+│   │   ├── rule_engine.cpp
+│   │   ├── rule_engine.hpp
+│   │   └── rule.hpp
+│   ├── stat_kernel
 │   │   ├── cell.hpp
 │   │   ├── compiler.cpp
 │   │   ├── compiler.hpp
@@ -66,23 +70,22 @@
 │   │   ├── executor.hpp
 │   │   ├── graph.cpp
 │   │   ├── graph.hpp
-│   │   ├── spreadsheet.cpp
-│   │   └── spreadsheet.hpp
-│   ├── state
-│   │   ├── rule.cpp
-│   │   ├── rule_engine.cpp
-│   │   ├── rule_engine.hpp
-│   │   └── rule.hpp
+│   │   ├── stat_kernel.cpp
+│   │   └── stat_kernel.hpp
 │   └── types
 │       └── definitions.hpp
 └── tests
+    ├── benchmarks
+    │   ├── balanced_binary_tree.cpp
+    │   └── chains.cpp
     ├── CMakeLists.txt
     ├── dsl
     │   ├── evaluator.cpp
     │   ├── parser.cpp
     │   └── tokenizer.cpp
     ├── main.cpp
-    ├── spreadsheet
-    │   ├── action_draft.cpp
+    ├── rules
+    │   └── action_draft.cpp
+    ├── stat_kernel
     │   └── cell_creation.cpp
     └── test_util.hpp
