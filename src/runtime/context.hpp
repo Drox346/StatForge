@@ -1,16 +1,16 @@
 #pragma once
 
-#include "spreadsheet/spreadsheet.hpp"
+#include "stat_kernel/stat_kernel.hpp"
 #include "state/rule_engine.hpp"
 
 namespace statforge {
 
 struct Context {
-    Spreadsheet spreadsheet;
+    StatKernel kernel;
     RuleEngine ruleEngine;
 
     void reset() {
-        spreadsheet.reset();
+        kernel.reset();
         ruleEngine.reset();
     }
 };

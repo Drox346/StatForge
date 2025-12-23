@@ -1,16 +1,16 @@
 #pragma once
 
-#include "spreadsheet/graph.hpp"
+#include "stat_kernel/graph.hpp"
 #include "types/definitions.hpp"
 
-namespace statforge::spreadsheet {
+namespace statforge::statkernel {
 
 using CellValueResult = Result<CellValue>;
 
 class Executor {
 public:
     Executor() = delete;
-    explicit Executor(spreadsheet::Graph& graph) : _graph(graph) {
+    explicit Executor(statkernel::Graph& graph) : _graph(graph) {
     }
 
     enum class EvaluationType : uint8_t {
@@ -33,7 +33,7 @@ private:
     void (Executor::*evaluateImpl)(CellId const& id) = &Executor::evaluateIterative;
 
     std::vector<CellId> _dirtyLeaves;
-    [[maybe_unused]] spreadsheet::Graph& _graph;
+    [[maybe_unused]] statkernel::Graph& _graph;
 };
 
-} // namespace statforge::spreadsheet
+} // namespace statforge::statkernel

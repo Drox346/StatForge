@@ -1,10 +1,10 @@
 #pragma once
 
 #include "error/internal/error.hpp"
-#include "spreadsheet/cell.hpp"
+#include "stat_kernel/cell.hpp"
 #include "types/definitions.hpp"
 
-namespace statforge::spreadsheet {
+namespace statforge::statkernel {
 
 class Graph {
 public:
@@ -34,4 +34,4 @@ private:
     std::unordered_map<CellId, std::vector<CellId>> _dependentsMap;
 };
 
-} // namespace statforge::spreadsheet
+} // namespace statforge::statkernel

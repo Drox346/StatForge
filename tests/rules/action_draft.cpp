@@ -1,6 +1,6 @@
 #include "../test_util.hpp"
 #include "error/internal/error.hpp"
-#include "spreadsheet/spreadsheet.hpp"
+#include "stat_kernel/stat_kernel.hpp"
 #include "types/definitions.hpp"
 
 #include <cstdint>
@@ -47,17 +47,17 @@ struct overloaded : Ts... {
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
-statforge::VoidResult applyRule(const Action& action, statforge::Spreadsheet& sheet) {
+statforge::VoidResult applyRule(const Action& action, statforge::StatKernel& kernel) {
     return std::visit(
-        overloaded{[&sheet](const Remove& action) { return statforge::VoidResult{}; },
-                   [&sheet](const AddVal& action) {
-                       return sheet.createValueCell(action.target, action.value);
+        overloaded{[&kernel](const Remove& action) { return statforge::VoidResult{}; },
+                   [&kernel](const AddVal& action) {
+                       return kernel.createValueCell(action.target, action.value);
                    },
-                   [&sheet](const AddForm& action) { return statforge::VoidResult{}; },
-                   [&sheet](const AddAgg& action) { return statforge::VoidResult{}; },
-                   [&sheet](const SetVal& action) { return statforge::VoidResult{}; },
-                   [&sheet](const SetForm& action) { return statforge::VoidResult{}; },
-                   [&sheet](const SetDeps& action) { return statforge::VoidResult{}; }},
+                   [&kernel](const AddForm& action) { return statforge::VoidResult{}; },
+                   [&kernel](const AddAgg& action) { return statforge::VoidResult{}; },
+                   [&kernel](const SetVal& action) { return statforge::VoidResult{}; },
+                   [&kernel](const SetForm& action) { return statforge::VoidResult{}; },
+                   [&kernel](const SetDeps& action) { return statforge::VoidResult{}; }},
         action);
 }
 
@@ -80,16 +80,16 @@ statforge::VoidResult applyRule(const Action& action, statforge::Spreadsheet& sh
 #include <iostream>
 
 TEST_CASE("main") {
-    // statforge::Spreadsheet sheet;
-    // sheet.createValueCell(statforge::CellId{"life"}, 100);
+    // statforge::StatKernel kernel;
+    // kernel.createValueCell(statforge::CellId{"life"}, 100);
 
     // Action addLife = AddVal{.target = statforge::CellId{"life"}, .value = statforge::CellValue{1000}};
-    // auto ruleResult = applyRule(addLife, sheet);
+    // auto ruleResult = applyRule(addLife, kernel);
     // if (!ruleResult) {
     //     std::cout << ruleResult.error().message << "\n";
     // }
 
-    // auto valResult = sheet.getCellValue(statforge::CellId{"life"});
+    // auto valResult = kernel.getCellValue(statforge::CellId{"life"});
     // if (valResult) {
     //     std::cout << valResult.value() << "\n";
     // } else {

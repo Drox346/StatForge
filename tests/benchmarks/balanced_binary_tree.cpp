@@ -1,5 +1,5 @@
 #include "../test_util.hpp"
-#include "spreadsheet/spreadsheet.hpp"
+#include "stat_kernel/stat_kernel.hpp"
 
 #include <doctest/doctest.h>
 #include <string>
@@ -13,9 +13,9 @@ using namespace statforge;
 TEST_CASE("benchmark cell dependency evaluation") {
     constexpr size_t minCellTarget = 100'000 / 2;
 
-    Spreadsheet sheet;
-    CHECK(sheet.createValueCell("root", 1));
-    CHECK(sheet.createFormulaCell("a0", "<root>"));
+    StatKernel kernel;
+    CHECK(kernel.createValueCell("root", 1));
+    CHECK(kernel.createFormulaCell("a0", "<root>"));
 
     size_t nextId = 1;     // next free "aN"
     size_t levelStart = 0; // first parent id in this level
@@ -29,7 +29,7 @@ TEST_CASE("benchmark cell dependency evaluation") {
         for (size_t k = 0; k < levelCount && nextId < minCellTarget; ++k) {
             const size_t parent = levelStart + k;
 
-            auto left = sheet.createFormulaCell("a" + std::to_string(nextId),
+            auto left = kernel.createFormulaCell("a" + std::to_string(nextId),
                                                 "root(2, <a" + std::to_string(parent) + ">) + 1");
             if (!left) {
                 result = left;
@@ -40,7 +40,7 @@ TEST_CASE("benchmark cell dependency evaluation") {
             if (nextId >= minCellTarget)
                 break;
 
-            auto right = sheet.createFormulaCell("a" + std::to_string(nextId),
+            auto right = kernel.createFormulaCell("a" + std::to_string(nextId),
                                                  "root(2, <a" + std::to_string(parent) + ">) + 1");
             if (!right) {
                 result = right;
@@ -59,17 +59,17 @@ TEST_CASE("benchmark cell dependency evaluation") {
 
     // initial clear dirty
     auto t0 = std::chrono::steady_clock::now();
-    sheet.evaluate();
+    kernel.evaluate();
     auto t1 = std::chrono::steady_clock::now();
 
     // dirty propagation
     auto t2 = std::chrono::steady_clock::now();
-    sheet.setCellValue("root", 2);
+    kernel.setCellValue("root", 2);
     auto t3 = std::chrono::steady_clock::now();
 
     // update all cells
     auto t4 = std::chrono::steady_clock::now();
-    sheet.evaluate();
+    kernel.evaluate();
     auto t5 = std::chrono::steady_clock::now();
     static std::random_device dev;
     static std::mt19937 rng(dev());

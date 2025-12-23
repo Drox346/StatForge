@@ -2,12 +2,12 @@
 
 namespace statforge::runtime {
 
-Engine::Engine(spreadsheet::Executor::EvaluationType evaluationType) {
-    ctx.spreadsheet.setEvaluationType(evaluationType);
+Engine::Engine(statkernel::Executor::EvaluationType evaluationType) {
+    ctx.kernel.setEvaluationType(evaluationType);
 }
 
-Spreadsheet& Engine::spreadsheet() {
-    return ctx.spreadsheet;
+StatKernel& Engine::kernel() {
+    return ctx.kernel;
 }
 
 RuleEngine& Engine::ruleEngine() {

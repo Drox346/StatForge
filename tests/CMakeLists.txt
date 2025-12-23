@@ -9,8 +9,9 @@ add_executable(
     dsl/parser.cpp
     dsl/evaluator.cpp
 
-    spreadsheet/action_draft.cpp
-    spreadsheet/cell_creation.cpp
+    rules/action_draft.cpp
+    
+    stat_kernel/cell_creation.cpp
 
     benchmarks/balanced_binary_tree.cpp
     benchmarks/chains.cpp

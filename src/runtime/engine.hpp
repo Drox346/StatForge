@@ -1,17 +1,17 @@
 #pragma once
 
 #include "runtime/context.hpp"
-#include "spreadsheet/spreadsheet.hpp"
+#include "stat_kernel/stat_kernel.hpp"
 #include "state/rule_engine.hpp"
 
 namespace statforge::runtime {
 
 class Engine {
 public:
-    Engine(spreadsheet::Executor::EvaluationType evaluationType =
-               spreadsheet::Executor::EvaluationType::Iterative);
+    Engine(statkernel::Executor::EvaluationType evaluationType =
+               statkernel::Executor::EvaluationType::Iterative);
 
-    Spreadsheet& spreadsheet();
+    StatKernel& kernel();
     RuleEngine& ruleEngine();
 
     void evaluate();

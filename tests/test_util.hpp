@@ -1,6 +1,6 @@
 #include "error/error.h"
 #include "error/internal/error.hpp"
-#include "spreadsheet/spreadsheet.hpp"
+#include "stat_kernel/stat_kernel.hpp"
 #include "types/definitions.hpp"
 
 #include <doctest/doctest.h>
@@ -11,10 +11,10 @@ void checkErrorCode(statforge::Result<T> result, SF_ErrorCode code) {
     CHECK_EQ(result.error().errorCode, code);
 }
 
-inline void checkValue(statforge::Spreadsheet& sheet,
+inline void checkValue(statforge::StatKernel& kernel,
                        std::string const& cellId,
                        statforge::CellValue value) {
-    auto result = sheet.getCellValue(cellId);
+    auto result = kernel.getCellValue(cellId);
     REQUIRE(result);
     CHECK_EQ(*result, value);
 }

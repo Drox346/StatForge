@@ -2,7 +2,7 @@
 #include "error/internal/error.hpp"
 
 #include "dsl/parser.hpp"
-#include "spreadsheet/cell.hpp"
+#include "stat_kernel/cell.hpp"
 #include "types/definitions.hpp"
 
 #include <iostream>
@@ -15,7 +15,7 @@ constexpr bool skipCycleCheck = true;
 
 }
 
-namespace statforge::spreadsheet {
+namespace statforge::statkernel {
 
 //addCell
 //if(wireCell) -> ok
@@ -148,4 +148,4 @@ CellFormula Compiler::compileCellFormula(CompiledAst compiledAst) {
     };
 }
 
-} // namespace statforge::spreadsheet
+} // namespace statforge::statkernel

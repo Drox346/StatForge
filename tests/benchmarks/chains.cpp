@@ -7,9 +7,9 @@
 #include <string_view>
 #include <vector>
 
-#include "spreadsheet/compiler.hpp"
-#include "spreadsheet/executor.hpp"
-#include "spreadsheet/spreadsheet.hpp"
+#include "stat_kernel/compiler.hpp"
+#include "stat_kernel/executor.hpp"
+#include "stat_kernel/stat_kernel.hpp"
 
 using clk = std::chrono::steady_clock;
 
@@ -24,8 +24,8 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
     constexpr std::size_t chains = 1000;
     constexpr std::size_t depth = 25;
 
-    statforge::Spreadsheet sheet;
-    sheet.setEvaluationType(statforge::spreadsheet::Executor::EvaluationType::Recursive);
+    statforge::StatKernel kernel;
+    kernel.setEvaluationType(statforge::statkernel::Executor::EvaluationType::Recursive);
 
     // --- Build -------------------------------------------------------------
     // Each chain i:
@@ -41,7 +41,7 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
 
         // API ADJUST: createValueCell(name, value)
         // If yours returns expected/result, wrap with CHECK(...)
-        CHECK(sheet.createValueCell(v, 1.0));
+        CHECK(kernel.createValueCell(v, 1.0));
 
         std::string prev = v;
 
@@ -52,7 +52,7 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
             // If your DSL uses <name> for refs, this matches your earlier examples.
             const std::string formula = "root(<" + prev + ">, 2) + 1";
 
-            CHECK(sheet.createFormulaCell(cur, formula));
+            CHECK(kernel.createFormulaCell(cur, formula));
 
             prev = cur;
         }
@@ -65,7 +65,7 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
 
     // API ADJUST: if you only have evaluate(), call that.
     // If you have evaluateAll(), use it. If you require evaluating via getValue, do that.
-    CHECK(sheet.evaluate());
+    CHECK(kernel.evaluate());
 
     const auto t_eval1 = clk::now();
 
@@ -77,14 +77,14 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
     const auto t_set0 = clk::now();
 
     // API ADJUST: setValueCell(name, value) / setCellValue / setValue
-    CHECK(sheet.setCellValue(targetV, 2.0));
+    CHECK(kernel.setCellValue(targetV, 2.0));
 
     const auto t_set1 = clk::now();
 
     const auto t_evalOne0 = clk::now();
 
     // API ADJUST: evaluate(cellName) or evaluate(name) should evaluate just that subtree/chain.
-    CHECK(sheet.getCellValue(targetLeaf));
+    CHECK(kernel.getCellValue(targetLeaf));
 
     const auto t_evalOne1 = clk::now();
 
@@ -96,11 +96,11 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
 
     for (int it = 0; it < 2000; ++it) {
         const double x = dist(rng);
-        CHECK(sheet.setCellValue(targetV, x));
+        CHECK(kernel.setCellValue(targetV, x));
 
         // API ADJUST: if you have getValue(name), read the leaf to enforce actual work.
         // Otherwise delete this block.
-        auto val = sheet.getCellValue(targetLeaf); // expected<double, ErrorInfo> or similar?
+        auto val = kernel.getCellValue(targetLeaf); // expected<double, ErrorInfo> or similar?
         CHECK(val.has_value());
         g_sink += *val;
     }

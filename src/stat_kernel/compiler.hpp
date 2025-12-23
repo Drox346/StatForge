@@ -1,19 +1,18 @@
 #pragma once
 
-#include "dsl/parser.hpp"
 #include "error/internal/error.hpp"
 #include "types/definitions.hpp"
 #include <dsl/evaluator.hpp>
-#include <spreadsheet/cell.hpp>
-#include <spreadsheet/graph.hpp>
+#include <stat_kernel/cell.hpp>
+#include <stat_kernel/graph.hpp>
 #include <string_view>
 
-namespace statforge::spreadsheet {
+namespace statforge::statkernel {
 
 class Compiler {
 public:
     Compiler() = delete;
-    explicit Compiler(spreadsheet::Graph& graph) : _graph(graph) {
+    explicit Compiler(statkernel::Graph& graph) : _graph(graph) {
     }
 
     VoidResult addAggregatorCell(CellId const& id, std::vector<CellId> const& dependencies);
@@ -40,7 +39,7 @@ private:
     CompiledAstResult compileAst(CellId const& id, std::string_view formula);
     CellFormula compileCellFormula(CompiledAst ast);
 
-    [[maybe_unused]] spreadsheet::Graph& _graph;
+    [[maybe_unused]] statkernel::Graph& _graph;
 };
 
-} // namespace statforge::spreadsheet
+} // namespace statforge::statkernel

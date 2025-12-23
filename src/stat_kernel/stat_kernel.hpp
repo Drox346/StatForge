@@ -1,17 +1,17 @@
 #pragma once
 
 #include "error/internal/error.hpp"
-#include "spreadsheet/compiler.hpp"
-#include "spreadsheet/executor.hpp"
-#include "spreadsheet/graph.hpp"
+#include "stat_kernel/compiler.hpp"
+#include "stat_kernel/executor.hpp"
+#include "stat_kernel/graph.hpp"
 
 namespace statforge {
 
 using CellValueResult = Result<CellValue>;
 
-class Spreadsheet {
+class StatKernel {
 public:
-    Spreadsheet();
+    StatKernel();
 
     VoidResult createAggregatorCell(CellId const& id,
                                     std::vector<CellId> const& dependencies); //compiler/eval
@@ -28,12 +28,12 @@ public:
     VoidResult evaluate();
 
     void reset();
-    void setEvaluationType(spreadsheet::Executor::EvaluationType evaluationType);
+    void setEvaluationType(statkernel::Executor::EvaluationType evaluationType);
 
 private:
-    spreadsheet::Graph _graph;
-    spreadsheet::Compiler _compiler;
-    spreadsheet::Executor _executor;
+    statkernel::Graph _graph;
+    statkernel::Compiler _compiler;
+    statkernel::Executor _executor;
 };
 
 } // namespace statforge

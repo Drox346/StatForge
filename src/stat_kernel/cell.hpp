@@ -4,7 +4,7 @@
 
 #include <functional>
 
-namespace statforge::spreadsheet {
+namespace statforge::statkernel {
 
 using CellFormula = std::function<CellValue()>;
 
@@ -21,4 +21,4 @@ struct Cell {
     bool dirty{false};
 };
 
-} // namespace statforge::spreadsheet
+} // namespace statforge::statkernel

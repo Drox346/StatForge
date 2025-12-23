@@ -3,7 +3,7 @@
 
 #include <stack>
 
-namespace statforge::spreadsheet {
+namespace statforge::statkernel {
 
 void Executor::setEvaluationType(EvaluationType type) {
     if (type == EvaluationType::Recursive) {
@@ -138,4 +138,4 @@ void Executor::evaluateIterative(CellId const& id) {
     }
 }
 
-} // namespace statforge::spreadsheet
+} // namespace statforge::statkernel

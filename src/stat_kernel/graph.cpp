@@ -2,7 +2,7 @@
 
 #include "error/error.h"
 #include "error/internal/error.hpp"
-#include "spreadsheet/cell.hpp"
+#include "stat_kernel/cell.hpp"
 #include "types/definitions.hpp"
 
 #include <algorithm>
@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace statforge::spreadsheet {
+namespace statforge::statkernel {
 
 namespace {
 
@@ -211,4 +211,4 @@ std::vector<CellId>& Graph::dependents(CellId const& id) {
     return _dependentsMap[id];
 }
 
-} // namespace statforge::spreadsheet
+} // namespace statforge::statkernel
