@@ -21,6 +21,11 @@ bool hasPath(CellId const& src,
     //static for performance gains, avoiding heap allocations on every single call
     static std::stack<CellId> work;
     static std::unordered_set<CellId> visited;
+
+    //clear data from previous calls
+    while (!work.empty()) {
+        work.pop();
+    }
     visited.clear();
 
     work.push(src);

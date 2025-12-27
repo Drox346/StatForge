@@ -5,7 +5,6 @@
 #include "stat_kernel/cell.hpp"
 #include "types/definitions.hpp"
 
-#include <iostream>
 #include <memory>
 #include <string_view>
 
