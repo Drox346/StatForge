@@ -36,10 +36,10 @@ private:
         dsl::ExpressionTree expr;
     };
     using CompiledAstResult = Result<CompiledAst>;
-    CompiledAstResult compileAst(CellId const& id, std::string_view formula);
+    static CompiledAstResult compileAst(CellId const& id, std::string_view formula);
     CellFormula compileCellFormula(CompiledAst ast);
 
-    [[maybe_unused]] statkernel::Graph& _graph;
+    statkernel::Graph& _graph;
 };
 
 } // namespace statforge::statkernel

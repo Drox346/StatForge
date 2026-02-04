@@ -16,9 +16,6 @@ constexpr bool skipCycleCheck = true;
 
 namespace statforge::statkernel {
 
-//addCell
-//if(wireCell) -> ok
-//else: removeCell()
 VoidResult Compiler::addAggregatorCell(CellId const& id, std::vector<CellId> const& dependencies) {
     SF_RETURN_ERROR_IF_UNEXPECTED(_graph.addCell(id, {}));
 

@@ -49,7 +49,7 @@ void Executor::markAsDirtyLeaf(CellId const& id) {
 
 void Executor::remove(CellId const& id) {
     auto it = std::ranges::find(_dirtyLeaves, id);
-    if(it != _dirtyLeaves.end()) {
+    if (it != _dirtyLeaves.end()) {
         _dirtyLeaves.erase(it);
     }
 }

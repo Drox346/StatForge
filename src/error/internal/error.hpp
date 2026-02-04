@@ -35,35 +35,36 @@ inline ErrorInfo buildErrorInfo(SF_ErrorCode code,
     };
 }
 
-// The temporary "_sf_tmpErr" enforces single evaluation and avoids double-move or other side effects.
-#define SF_RETURN_ERROR_IF_UNEXPECTED(err)                                                                             \
-    do {                                                                                                               \
-        auto&& _sf_tmpErr = (err);                                                                                     \
-        if (!(_sf_tmpErr)) [[unlikely]] {                                                                              \
-            return std::unexpected(std::move(_sf_tmpErr).error());                                                     \
-        }                                                                                                              \
+// The temporary "sf__tmp_err" enforces single evaluation and avoids double-move or other side effects.
+#define SF_RETURN_ERROR_IF_UNEXPECTED(err)                                                         \
+    do {                                                                                           \
+        auto&& sf__tmp_err = (err);                                                                \
+        if (!(sf__tmp_err)) [[unlikely]] {                                                         \
+            return std::unexpected(std::move(sf__tmp_err).error());                                \
+        }                                                                                          \
     } while (false)
 
-#define SF_RETURN_UNEXPECTED_IF(condition, err, msg)                                                                   \
-    do {                                                                                                               \
-        if ((condition)) [[unlikely]] {                                                                                \
-            return std::unexpected(buildErrorInfo((err), (msg)));                                                      \
-        }                                                                                                              \
+#define SF_RETURN_UNEXPECTED_IF(condition, err, msg)                                               \
+    do {                                                                                           \
+        if ((condition)) [[unlikely]] {                                                            \
+            return std::unexpected(buildErrorInfo((err), (msg)));                                  \
+        }                                                                                          \
     } while (false)
 
-#define SF_RETURN_UNEXPECTED_IF_SPAN(condition, err, msg, span)                                                        \
-    do {                                                                                                               \
-        if ((condition)) [[unlikely]] {                                                                                \
-            return std::unexpected(buildErrorInfo((err), (msg), (span)));                                              \
-        }                                                                                                              \
+#define SF_RETURN_UNEXPECTED_IF_SPAN(condition, err, msg, span)                                    \
+    do {                                                                                           \
+        if ((condition)) [[unlikely]] {                                                            \
+            return std::unexpected(buildErrorInfo((err), (msg), (span)));                          \
+        }                                                                                          \
     } while (false)
 
 template <class T>
 using Result = std::expected<T, ErrorInfo>;
 using VoidResult = Result<void>;
 
-[[noreturn]] inline void unreachable(std::string_view reason,
-                                     std::source_location loc = std::source_location::current()) noexcept {
+[[noreturn]] inline void unreachable(
+    std::string_view reason,
+    std::source_location loc = std::source_location::current()) noexcept {
 #ifndef NDEBUG
     std::println(stderr,
                  "UNREACHABLE at {}:{} ({}): {:.{}}",

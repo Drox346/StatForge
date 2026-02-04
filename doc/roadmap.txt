@@ -27,7 +27,6 @@
 - .dot "legend right" to create a legend
 - .dot formula field if formula cell
 - .dot links
-- proper guard rails for different cell types for functions like setValue, setFormula, add/remove dependency
 - rewriting evaluation logic to automatically use recursive and switch to iterative if recursion is too deep
 - store DSL of cell formulas, allow parser to create proper error msg when DSL error is encountered
 

@@ -11,7 +11,7 @@ using namespace statforge;
 #include <random>
 
 TEST_CASE("benchmark cell dependency evaluation") {
-    constexpr size_t minCellTarget = 100'000 / 2;
+    constexpr size_t minCellTarget = 100'000;
 
     StatKernel kernel;
     CHECK(kernel.createValueCell("root", 1));
@@ -30,7 +30,7 @@ TEST_CASE("benchmark cell dependency evaluation") {
             const size_t parent = levelStart + k;
 
             auto left = kernel.createFormulaCell("a" + std::to_string(nextId),
-                                                "root(2, <a" + std::to_string(parent) + ">) + 1");
+                                                 "root(2, <a" + std::to_string(parent) + ">) + 1");
             if (!left) {
                 result = left;
                 break;
@@ -41,7 +41,7 @@ TEST_CASE("benchmark cell dependency evaluation") {
                 break;
 
             auto right = kernel.createFormulaCell("a" + std::to_string(nextId),
-                                                 "root(2, <a" + std::to_string(parent) + ">) + 1");
+                                                  "root(2, <a" + std::to_string(parent) + ">) + 1");
             if (!right) {
                 result = right;
                 break;
