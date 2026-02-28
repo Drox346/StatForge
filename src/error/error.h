@@ -65,6 +65,9 @@ typedef enum SF_ErrorCode {
     // Please report it to the dev if you encounter this error. Provide
     // error details from "sf_last_error()" and a full .dot graph export.
     SF_ERR_INTERNAL_INVALID_ENGINE_STATE = 1000,
+
+    // API call received a null or invalid engine handle.
+    SF_ERR_INVALID_ENGINE_HANDLE,
 } SF_ErrorCode;
 
 typedef struct SF_Value {
