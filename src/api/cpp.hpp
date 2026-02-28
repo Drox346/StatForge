@@ -1,31 +1,44 @@
 #pragma once
 
+#include "error/error.h"
+
+#include <memory>
 #include <string>
 
 namespace statforge {
+namespace runtime {
+class EngineImpl;
+}
 
-class Engine;
+class Engine {
+public:
+    Engine();
+    ~Engine();
+    Engine(Engine&&) noexcept;
+    Engine& operator=(Engine&&) noexcept;
+    Engine(Engine const&) = delete;
+    Engine& operator=(Engine const&) = delete;
 
+    /******* Cells ********/
+    SF_ErrorCode createAggregatorCell(std::string const& name);
+    SF_ErrorCode createFormulaCell(std::string const& name, std::string const& formula);
+    SF_ErrorCode createValueCell(std::string const& name, double value);
+    SF_ErrorCode removeCell(std::string const& name);
+    SF_ErrorCode setCellValue(std::string const& name, double value);
+    SF_ErrorCode setCellFormula(std::string const& name, std::string const& formula);
+    SF_ErrorCode setCellDependency(std::string const& name, std::string const& dependencies);
+    SF_ErrorCode getCellValue(std::string const& name, double& value) const;
 
-/******* Engine ********/
-Engine& createEngine();
+    /******* Rules ********/
+    SF_ErrorCode createRule(std::string const& name, std::string const& action, double initValue);
+    SF_ErrorCode editRule(std::string const& name, std::string const& action, double initValue);
+    SF_ErrorCode deleteRule(std::string const& name);
 
+    /******* Error ********/
+    std::string getLastError();
 
-/******* Cells ********/
-void createAggregatorCell(Engine& engine, std::string const& name);
-void createFormulaCell(Engine& engine, std::string const& name, std::string const& formula);
-void createValueCell(Engine& engine, std::string const& name, double value);
-void removeCell(Engine& engine, std::string& name);
-void setCellValue(Engine& engine, double value);
-void setCellFormula(Engine& engine, std::string const& name, std::string const& formula);
-void setCellDependency(Engine& engine, std::string const& name, std::string const& dependencies);
-
-void getCellValue(Engine& engine, std::string const& name);
-
-
-/******* Rules ********/
-void createRule(Engine& engine, std::string const& name, std::string const& action, double initValue);
-void editRule(Engine& engine, std::string const& name, std::string const& action, double initValue);
-void deleteRule(Engine& engine, std::string const& name);
+private:
+    std::unique_ptr<runtime::EngineImpl> _impl;
+};
 
 } // namespace statforge

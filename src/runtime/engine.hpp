@@ -1,21 +1,27 @@
 #pragma once
 
 #include "runtime/context.hpp"
-#include "stat_kernel/stat_kernel.hpp"
-#include "state/rule_engine.hpp"
+
+#include <string>
 
 namespace statforge::runtime {
 
-class Engine {
+class EngineImpl {
 public:
-    Engine(statkernel::Executor::EvaluationType evaluationType =
-               statkernel::Executor::EvaluationType::Iterative);
+    EngineImpl(statkernel::Executor::EvaluationType evaluationType =
+                   statkernel::Executor::EvaluationType::Iterative);
 
-    StatKernel& kernel();
-    RuleEngine& ruleEngine();
+    SF_ErrorCode createAggregatorCell(CellId const& name);
+    SF_ErrorCode createFormulaCell(CellId const& name, std::string_view formula);
+    SF_ErrorCode createValueCell(CellId const& name, double value);
+    SF_ErrorCode removeCell(CellId const& name);
+    SF_ErrorCode setCellValue(CellId const& name, double value);
+    SF_ErrorCode setCellFormula(CellId const& name, std::string_view formula);
+    SF_ErrorCode setCellDependency(CellId const& name, std::string_view dependencies);
+    SF_ErrorCode getCellValue(CellId const& name, double& value);
+    std::string getLastError();
 
     void evaluate();
-
     void reset();
 
 private:

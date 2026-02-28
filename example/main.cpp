@@ -1,34 +1,22 @@
-#include "runtime/engine.hpp"
+#include "api/cpp.hpp"
 
-#include <iostream>
-
-// [val] level: "47"
-// [val] subclass: "1"
-// [val] baselife: "150"
-// [val] flatLifePerLevel: "48"
-
-// [for] flatLifeSubclass: "<subclass> == 0 ? 0 :
-//                         <subclass> == 1 ? 100 :
-//                         <subclass> == 2 ? 300 : 0"
-// [for] flatLifeLevel: "<level> * <flatLifePerLevel>"
-
-// [agg] flatLifeAggr:
-// dependency: baselife, flatLifeLevel, flatLifeSubclass
+#include <print>
 
 int main() {
     statforge::Engine engine;
-    auto& spreadsheet = engine.kernel();
+    std::string lifeCellName = "life";
+    engine.createValueCell(lifeCellName, 105);
 
-    spreadsheet.createValueCell("level", 47);
-    spreadsheet.createValueCell("subclass", 47);
-    spreadsheet.createValueCell("baselife", 47);
-    spreadsheet.createValueCell("flatLifePerLevel", 47);
-    spreadsheet.createFormulaCell(
-        "flatLifeSubclass",
-        "<subclass> == 0 ? 0 : <subclass> == 1 ? 100 : <subclass> == 2 ? 300 : 0");
-    spreadsheet.createFormulaCell("flatLifeLevel", "<level> * <flatLifePerLevel>");
-    spreadsheet.createAggregatorCell("flatLifeAggr",
-                                     {"baselife", "flatLifeLevel", "flatLifeSubclass"});
+    double cellVal{};
+    auto error = engine.getCellValue(lifeCellName, cellVal);
+    if (error) {
+        std::print("Error: {}\n", engine.getLastError());
+    } else {
+        std::print("Val: {}\n", cellVal);
+    }
+
+    auto creationError = engine.createValueCell(lifeCellName, 100);
+    std::print("Error: {}\n", engine.getLastError());
 
     return 0;
 }

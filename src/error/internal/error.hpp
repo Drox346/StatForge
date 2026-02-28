@@ -35,7 +35,8 @@ inline ErrorInfo buildErrorInfo(SF_ErrorCode code,
     };
 }
 
-// The temporary "sf__tmp_err" enforces single evaluation and avoids double-move or other side effects.
+// The temporary "sf__tmp_err" enforces single evaluation
+// and avoids double-move or other side effects.
 #define SF_RETURN_ERROR_IF_UNEXPECTED(err)                                                         \
     do {                                                                                           \
         auto&& sf__tmp_err = (err);                                                                \
