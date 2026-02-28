@@ -2,12 +2,12 @@
 #include "api/cpp.hpp"
 
 #include <doctest/doctest.h>
+#include <print>
 #include <string>
 
 using namespace statforge;
 
 #include <chrono>
-#include <iostream>
 
 TEST_CASE("benchmark cell dependency evaluation") {
     constexpr size_t minCellTarget = 100'000;
@@ -91,9 +91,17 @@ TEST_CASE("benchmark cell dependency evaluation") {
     auto ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
     auto ms3 = std::chrono::duration_cast<std::chrono::milliseconds>(t5 - t4).count();
     auto ms4 = std::chrono::duration_cast<std::chrono::milliseconds>(t7 - t6).count();
-    std::cout << "Creation of " << cells << " formula cells: " << ms4 << "ms\n"
-              << "Initial full read after creation: " << ms1 << "ms\n"
-              << "Setting " << cells << " cells to dirty: " << ms2 << "ms\n"
-              << "Full read of " << cells << " dirty cells: " << ms3 << "ms\n"
-              << "errors: " << (ok ? "none" : errorMessage) << "\n";
+    std::print("Creation of {} formula cells: {}ms\n"
+               "Initial full read after creation: {}ms\n"
+               "Setting {} cells to dirty: {}ms\n"
+               "Full read of {} dirty cells: {}ms\n"
+               "errors: {}\n",
+               cells,
+               ms4,
+               ms1,
+               cells,
+               ms2,
+               cells,
+               ms3,
+               ok ? "none" : errorMessage);
 }

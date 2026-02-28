@@ -3,7 +3,7 @@
 #include "api/cpp.hpp"
 
 #include <chrono>
-#include <iostream>
+#include <print>
 #include <random>
 #include <string>
 
@@ -73,11 +73,17 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
     }
     const auto t_loop1 = clk::now();
 
-    std::cout << "chains " << chains << " | depth " << depth << '\n'
-              << "cell creation: " << ms(t_create1 - t_create0) << "ms\n"
-              << "initial full leaf read: " << ms(t_eval1 - t_eval0) << "ms\n"
-              << "setting value of a single value cell: " << ms(t_set1 - t_set0) << "ms\n"
-              << "read of single chain leaf: " << ms(t_evalOne1 - t_evalOne0) << "ms\n"
-              << "2000x random val + read of single chain leaf: " << ms(t_loop1 - t_loop0)
-              << "ms\n";
+    std::print("chains {} | depth {}\n"
+               "cell creation: {}ms\n"
+               "initial full leaf read: {}ms\n"
+               "setting value of a single value cell: {}ms\n"
+               "read of single chain leaf: {}ms\n"
+               "2000x random val + read of single chain leaf: {}ms\n",
+               chains,
+               depth,
+               ms(t_create1 - t_create0),
+               ms(t_eval1 - t_eval0),
+               ms(t_set1 - t_set0),
+               ms(t_evalOne1 - t_evalOne0),
+               ms(t_loop1 - t_loop0));
 }

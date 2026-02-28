@@ -86,13 +86,13 @@ TEST_CASE("main") {
     // Action addLife = AddVal{.target = statforge::CellId{"life"}, .value = statforge::CellValue{1000}};
     // auto ruleResult = applyRule(addLife, kernel);
     // if (!ruleResult) {
-    //     std::cout << ruleResult.error().message << "\n";
+    //     std::print("{}\n", ruleResult.error().message);
     // }
 
     // auto valResult = kernel.getCellValue(statforge::CellId{"life"});
     // if (valResult) {
-    //     std::cout << valResult.value() << "\n";
+    //     std::print("{}\n", valResult.value());
     // } else {
-    //     std::cout << valResult.error().message << "\n";
+    //     std::print("{}\n", valResult.error().message);
     // }
 }
