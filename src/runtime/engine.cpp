@@ -79,7 +79,6 @@ SF_ErrorCode EngineImpl::getCellValue(CellId const& name, double& value) {
         sf_set_error("%s", result.error().message.c_str());
         return result.error().errorCode;
     }
-    sf_set_error("");
     value = *result;
     return SF_OK;
 }
@@ -89,6 +88,11 @@ std::string EngineImpl::getLastError() {
 }
 
 void EngineImpl::evaluate() {
+    auto result = ctx.kernel.evaluate();
+    if (!result) {
+        sf_set_error("%s", result.error().message.c_str());
+        return;
+    }
 }
 
 void EngineImpl::reset() {
