@@ -44,7 +44,7 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
     auto readLeaf = [&](std::size_t chainIdx) -> bool {
         const std::string leaf = "c" + std::to_string(chainIdx) + "_" + std::to_string(depth - 1);
         double value{};
-        return engine.getCellValue(leaf, value);
+        return engine.getCellValue(leaf, value) == SF_OK;
     };
 
     const auto t_eval0 = clk::now();
