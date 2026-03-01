@@ -6,7 +6,7 @@
 [ ] 3	Bulk-import helpers               reserveCells(n) pre-sizes maps, createFormulaCellsBulk() parses/wires thousands of formulas in one pass
 [ ] 4	Intrinsic registry                Host registers name -> λ(span<double>) before any parse (e.g. sqrt, clamp, pow, abs, min, max, floor, ceil, round)
 [ ] 5	Rule -> Action system             Parse & execute "if <cond> then set <cell> to <expr>" rules; fires during evaluate
-[ ] 6	PlantUML export                   dumpPlantUml(ostream, showValues) for graph visualisation
+[ ] 6	.dot export                       dumpGraph(ostream, showValues) for graph visualisation
 [ ] 7	Comprehensive error UX            DslError span bubbles up through Spreadsheet -> UI/CLI
 [ ] 8	High-coverage unit tests          Lexer, parser, evaluator, rule engine, cycle check, bulk insert, edge cases
 [X] 9	Duplicate-dependency eliminator   Auto-dedupe <A> + <A> lists at wiring time
@@ -16,8 +16,7 @@
 [ ] 13	Packaging                         cmake --install, vcpkg / conan ports
 [ ] 14	CI matrix                         GitHub Actions: linux & windows release builds + tests + perf budget gate
 [ ] 15	Optional: trace(cellId) helper    Return ordered list of formulas touched while resolving a cell (debug aid)
-[ ] 16  Cpp Modules                       Changing c++ headers to c++23 modules
-[ ] 17  undo()/revertTo()                 Adding an action stack and action ID. Allow reversing actions or even set to specific action ID. Config Struct to configure action stack size
+[ ] 16  undo()/revertTo()                 Adding an action stack and action ID. Allow reversing actions or even set to specific action ID. Config Struct to configure action stack size
 
 #   Minor Tasks/ToDo
 - DSL "%" for fmod

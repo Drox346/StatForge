@@ -28,8 +28,8 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
 
         std::string prev = v;
 
-        for (std::size_t d = 0; d < depth; ++d) {
-            const std::string cur = "c" + std::to_string(i) + "_" + std::to_string(d);
+        for (std::size_t currentDepth = 0; currentDepth < depth; ++currentDepth) {
+            const std::string cur = "c" + std::to_string(i) + "_" + std::to_string(currentDepth);
 
             const std::string formula = "root(2, <" + prev + ">) + 1";
 
