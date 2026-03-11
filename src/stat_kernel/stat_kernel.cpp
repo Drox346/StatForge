@@ -17,8 +17,9 @@ StatKernel::StatKernel() : _compiler(_graph), _executor(_graph) {
 }
 
 VoidResult StatKernel::createCollectionNode(NodeId const& id,
-                                            std::vector<NodeId> const& dependencies) {
-    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.addCollectionNode(id, dependencies));
+                                            std::vector<NodeId> const& dependencies,
+                                            SF_CollectionOperation operation) {
+    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.addCollectionNode(id, dependencies, operation));
     _executor.markAsDirtyLeaf(id);
 
     return {};

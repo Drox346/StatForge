@@ -74,6 +74,32 @@ TEST_CASE("basic spreadsheet setup") {
     CHECK_EQ(*finalLife, doctest::Approx(expectedFinalLife).epsilon(0.001));
 }
 
+TEST_CASE("collection node operations") {
+    StatKernel kernel;
+
+    CHECK(kernel.createValueNode("a", 1));
+    CHECK(kernel.createValueNode("b", 2));
+    CHECK(kernel.createValueNode("c", 10));
+
+    CHECK(kernel.createCollectionNode("sum", {"a", "b", "c"}, SF_COLLECTION_OP_SUM));
+    CHECK(kernel.createCollectionNode("product", {"a", "b", "c"}, SF_COLLECTION_OP_PRODUCT));
+    CHECK(kernel.createCollectionNode("median", {"a", "b", "c"}, SF_COLLECTION_OP_MEDIAN));
+    CHECK(kernel.createCollectionNode("average", {"a", "b", "c"}, SF_COLLECTION_OP_AVERAGE));
+    CHECK(kernel.createCollectionNode("min", {"a", "b", "c"}, SF_COLLECTION_OP_MIN));
+    CHECK(kernel.createCollectionNode("max", {"a", "b", "c"}, SF_COLLECTION_OP_MAX));
+    CHECK(kernel.createCollectionNode("count", {"a", "b", "c"}, SF_COLLECTION_OP_COUNT));
+
+    CHECK(kernel.evaluate());
+
+    checkValue(kernel, "sum", 13);
+    checkValue(kernel, "product", 20);
+    checkValue(kernel, "median", 2);
+    checkValue(kernel, "average", doctest::Approx(13.0 / 3.0));
+    checkValue(kernel, "min", 1);
+    checkValue(kernel, "max", 10);
+    checkValue(kernel, "count", 3);
+}
+
 TEST_CASE("node creation errors") {
     StatKernel kernel;
 

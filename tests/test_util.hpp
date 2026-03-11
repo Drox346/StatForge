@@ -11,10 +11,11 @@ void checkErrorCode(statforge::Result<T> result, SF_ErrorCode code) {
     CHECK_EQ(result.error().errorCode, code);
 }
 
+template <typename Expected>
 inline void checkValue(statforge::StatKernel& kernel,
                        std::string const& nodeId,
-                       statforge::NodeValue value) {
+                       Expected const& value) {
     auto result = kernel.getNodeValue(nodeId);
     REQUIRE(result);
-    CHECK_EQ(*result, value);
+    CHECK(*result == value);
 }

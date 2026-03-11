@@ -45,8 +45,8 @@ EngineImpl::EngineImpl(statkernel::Executor::EvaluationType evaluationType) {
     ctx.kernel.setEvaluationType(evaluationType);
 }
 
-SF_ErrorCode EngineImpl::createCollectionNode(NodeId const& name) {
-    return extractErrorCode(ctx.kernel.createCollectionNode(name, {}));
+SF_ErrorCode EngineImpl::createCollectionNode(NodeId const& name, SF_CollectionOperation operation) {
+    return extractErrorCode(ctx.kernel.createCollectionNode(name, {}, operation));
 }
 
 SF_ErrorCode EngineImpl::createFormulaNode(NodeId const& name, std::string_view formula) {

@@ -12,8 +12,9 @@ Engine::Engine(Engine&& other) noexcept = default;
 
 Engine& Engine::operator=(Engine&& other) noexcept = default;
 
-SF_ErrorCode Engine::createCollectionNode(std::string const& name) {
-    return _impl->createCollectionNode(name);
+SF_ErrorCode Engine::createCollectionNode(std::string const& name,
+                                          SF_CollectionOperation operation) {
+    return _impl->createCollectionNode(name, operation);
 }
 
 SF_ErrorCode Engine::createFormulaNode(std::string const& name, std::string const& formula) {

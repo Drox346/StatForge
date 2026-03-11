@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types/definitions.hpp"
+#include "types/collection_operation.h"
 
 #include <functional>
 
@@ -18,6 +19,7 @@ struct Node {
     NodeFormula formula;
     NodeValue value{};
     NodeType type{};
+    SF_CollectionOperation collectionOperation{SF_COLLECTION_OP_SUM};
     bool dirty{false};
 };
 

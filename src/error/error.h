@@ -41,6 +41,9 @@ typedef enum SF_ErrorCode {
     // Attempted to perform an action on a node with a node type that doesn't support that action.
     SF_ERR_NODE_TYPE_MISMATCH,
 
+    // Attempted to use an unsupported collection operation.
+    SF_ERR_INVALID_COLLECTION_OPERATION,
+
 
     /*** Evaluation ***/
     /*

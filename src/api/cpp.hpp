@@ -1,6 +1,7 @@
 #pragma once
 
 #include "error/error.h"
+#include "types/collection_operation.h"
 
 #include <memory>
 #include <string>
@@ -20,7 +21,7 @@ public:
     Engine& operator=(Engine const&) = delete;
 
     /******* Nodes ********/
-    SF_ErrorCode createCollectionNode(std::string const& name);
+    SF_ErrorCode createCollectionNode(std::string const& name, SF_CollectionOperation operation);
     SF_ErrorCode createFormulaNode(std::string const& name, std::string const& formula);
     SF_ErrorCode createValueNode(std::string const& name, double value);
     SF_ErrorCode removeNode(std::string const& name);

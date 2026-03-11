@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/context.hpp"
+#include "types/collection_operation.h"
 
 #include <string>
 
@@ -11,7 +12,7 @@ public:
     EngineImpl(statkernel::Executor::EvaluationType evaluationType =
                    statkernel::Executor::EvaluationType::Iterative);
 
-    SF_ErrorCode createCollectionNode(NodeId const& name);
+    SF_ErrorCode createCollectionNode(NodeId const& name, SF_CollectionOperation operation);
     SF_ErrorCode createFormulaNode(NodeId const& name, std::string_view formula);
     SF_ErrorCode createValueNode(NodeId const& name, double value);
     SF_ErrorCode removeNode(NodeId const& name);

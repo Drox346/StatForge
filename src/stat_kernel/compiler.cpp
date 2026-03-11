@@ -5,18 +5,44 @@
 #include "stat_kernel/node.hpp"
 #include "types/definitions.hpp"
 
+#include <algorithm>
 #include <memory>
 #include <string_view>
+#include <utility>
 
 namespace {
 
 constexpr bool skipCycleCheck = true;
 
+bool isValidCollectionOperation(SF_CollectionOperation operation) {
+    switch (operation) {
+    case SF_COLLECTION_OP_SUM:
+    case SF_COLLECTION_OP_PRODUCT:
+    case SF_COLLECTION_OP_MEDIAN:
+    case SF_COLLECTION_OP_AVERAGE:
+    case SF_COLLECTION_OP_MIN:
+    case SF_COLLECTION_OP_MAX:
+    case SF_COLLECTION_OP_COUNT:
+        return true;
+    }
+
+    return false;
 }
+
+} // namespace
 
 namespace statforge::statkernel {
 
-VoidResult Compiler::addCollectionNode(NodeId const& id, std::vector<NodeId> const& dependencies) {
+VoidResult Compiler::addCollectionNode(NodeId const& id,
+                                       std::vector<NodeId> const& dependencies,
+                                       SF_CollectionOperation operation) {
+    SF_RETURN_UNEXPECTED_IF(
+        !isValidCollectionOperation(operation),
+        SF_ERR_INVALID_COLLECTION_OPERATION,
+        std::format(R"(Trying to create collection node "{}" with invalid operation "{}")",
+                    id,
+                    static_cast<int>(operation)));
+
     SF_RETURN_ERROR_IF_UNEXPECTED(_graph.addNode(id, {}));
 
     // newly created nodes cannot appear as dependencies of existing nodes.
@@ -27,21 +53,101 @@ VoidResult Compiler::addCollectionNode(NodeId const& id, std::vector<NodeId> con
         return result;
     }
 
-    auto collect = [this, id]() -> NodeValue {
-        NodeValue value{0};
-
-        const auto& dependencies = _graph.dependencies(id);
-        for (auto const& dependency : dependencies) {
-            value += _graph.node(dependency).value;
-        }
-
-        return value;
-    };
-
-    _graph.node(
-        id) = {.formula = collect, .value = 0, .type = NodeType::Collection, .dirty = true};
+    _graph.node(id) = {.formula = compileCollectionFormula(id, operation),
+                       .value = 0,
+                       .type = NodeType::Collection,
+                       .collectionOperation = operation,
+                       .dirty = true};
 
     return {};
+}
+
+NodeFormula Compiler::compileCollectionFormula(NodeId const& id, SF_CollectionOperation operation) {
+    switch (operation) {
+    case SF_COLLECTION_OP_SUM:
+        return [this, id]() -> NodeValue {
+            NodeValue value{0};
+            for (auto const& dependency : _graph.dependencies(id)) {
+                value += _graph.node(dependency).value;
+            }
+            return value;
+        };
+    case SF_COLLECTION_OP_PRODUCT:
+        return [this, id]() -> NodeValue {
+            NodeValue value{1};
+            for (auto const& dependency : _graph.dependencies(id)) {
+                value *= _graph.node(dependency).value;
+            }
+            return value;
+        };
+    case SF_COLLECTION_OP_MEDIAN:
+        return [this, id]() -> NodeValue {
+            const auto& dependencies = _graph.dependencies(id);
+            if (dependencies.empty()) {
+                return 0.0;
+            }
+
+            std::vector<NodeValue> values;
+            values.reserve(dependencies.size());
+            for (auto const& dependency : dependencies) {
+                values.push_back(_graph.node(dependency).value);
+            }
+
+            std::ranges::sort(values);
+            auto const middle = values.size() / 2;
+            if (values.size() % 2 == 1) {
+                return values[middle];
+            }
+            return (values[middle - 1] + values[middle]) / 2.0;
+        };
+    case SF_COLLECTION_OP_AVERAGE:
+        return [this, id]() -> NodeValue {
+            const auto& dependencies = _graph.dependencies(id);
+            if (dependencies.empty()) {
+                return 0.0;
+            }
+
+            NodeValue value{0};
+            for (auto const& dependency : dependencies) {
+                value += _graph.node(dependency).value;
+            }
+            return value / static_cast<NodeValue>(dependencies.size());
+        };
+    case SF_COLLECTION_OP_MIN:
+        return [this, id]() -> NodeValue {
+            const auto& dependencies = _graph.dependencies(id);
+            if (dependencies.empty()) {
+                return 0.0;
+            }
+
+            auto first = dependencies.begin();
+            NodeValue value = _graph.node(*first).value;
+            for (auto iter = std::next(first); iter != dependencies.end(); ++iter) {
+                value = std::min(value, _graph.node(*iter).value);
+            }
+            return value;
+        };
+    case SF_COLLECTION_OP_MAX:
+        return [this, id]() -> NodeValue {
+            const auto& dependencies = _graph.dependencies(id);
+            if (dependencies.empty()) {
+                return 0.0;
+            }
+
+            auto first = dependencies.begin();
+            NodeValue value = _graph.node(*first).value;
+            for (auto iter = std::next(first); iter != dependencies.end(); ++iter) {
+                value = std::max(value, _graph.node(*iter).value);
+            }
+            return value;
+        };
+    case SF_COLLECTION_OP_COUNT:
+        return [this, id]() -> NodeValue {
+            return static_cast<NodeValue>(_graph.dependencies(id).size());
+        };
+    }
+
+    std::unreachable();
 }
 
 VoidResult Compiler::addFormulaNode(NodeId const& id, std::string_view formula) {

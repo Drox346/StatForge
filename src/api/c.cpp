@@ -33,14 +33,16 @@ void sf_destroy_engine(SF_Engine* e) {
     delete e;
 }
 
-SF_ErrorCode sf_create_collection_node(SF_Engine* engine, const char* name) {
+SF_ErrorCode sf_create_collection_node(SF_Engine* engine,
+                                       const char* name,
+                                       SF_CollectionOperation operation) {
     if (auto code = validateEngine(engine); code != SF_OK) {
         return code;
     }
     if (auto code = validateStringArg(name, "name"); code != SF_OK) {
         return code;
     }
-    return engine->engine.createCollectionNode(name);
+    return engine->engine.createCollectionNode(name, operation);
 }
 
 SF_ErrorCode sf_create_formula_node(SF_Engine* engine, const char* name, const char* formula) {
