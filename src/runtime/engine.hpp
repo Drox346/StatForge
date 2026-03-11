@@ -11,7 +11,7 @@ public:
     EngineImpl(statkernel::Executor::EvaluationType evaluationType =
                    statkernel::Executor::EvaluationType::Iterative);
 
-    SF_ErrorCode createAggregatorNode(NodeId const& name);
+    SF_ErrorCode createCollectionNode(NodeId const& name);
     SF_ErrorCode createFormulaNode(NodeId const& name, std::string_view formula);
     SF_ErrorCode createValueNode(NodeId const& name, double value);
     SF_ErrorCode removeNode(NodeId const& name);

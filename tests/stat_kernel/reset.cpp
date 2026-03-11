@@ -13,17 +13,17 @@ TEST_CASE("reset clears kernel state") {
     CHECK(kernel.createValueNode("value1", 10));
     CHECK(kernel.createValueNode("value2", 5));
     CHECK(kernel.createFormulaNode("formula1", "<value1> + <value2>"));
-    CHECK(kernel.createAggregatorNode("agg1", {"value1", "value2"}));
+    CHECK(kernel.createCollectionNode("collection1", {"value1", "value2"}));
     CHECK(kernel.evaluate());
 
     checkValue(kernel, "formula1", 15);
-    checkValue(kernel, "agg1", 15);
+    checkValue(kernel, "collection1", 15);
 
     kernel.reset();
 
     checkErrorCode(kernel.getNodeValue("value1"), SF_ERR_NODE_NOT_FOUND);
     checkErrorCode(kernel.getNodeValue("formula1"), SF_ERR_NODE_NOT_FOUND);
-    checkErrorCode(kernel.getNodeValue("agg1"), SF_ERR_NODE_NOT_FOUND);
+    checkErrorCode(kernel.getNodeValue("collection1"), SF_ERR_NODE_NOT_FOUND);
 
     CHECK(kernel.createValueNode("value1", 3));
     CHECK(kernel.createFormulaNode("formula1", "<value1> * 2"));

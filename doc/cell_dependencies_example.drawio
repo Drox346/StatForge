@@ -10,7 +10,7 @@
         <mxCell id="DxNy1WVJfUA5JzOVF3Kq-19" value="Value" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="1310" y="1330" width="90" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="DxNy1WVJfUA5JzOVF3Kq-20" value="Aggregator" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+        <mxCell id="DxNy1WVJfUA5JzOVF3Kq-20" value="Collection" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
           <mxGeometry x="1410" y="1330" width="90" height="20" as="geometry" />
         </mxCell>
         <mxCell id="DxNy1WVJfUA5JzOVF3Kq-22" value="" style="endArrow=classic;html=1;rounded=0;" parent="1" source="WC7Za_dSP8BVYdFuTw67-187" target="WC7Za_dSP8BVYdFuTw67-145" edge="1">

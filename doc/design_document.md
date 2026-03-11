@@ -18,7 +18,7 @@ Goal:
     - Strict node-mutation-time checks to guarantee spreadsheet correctness. Allows skipping evaluation time checks for higher performance.
 
 3. Architecture Overview
-    - Node-centric DAG with Value, Aggregator, and Formula node types.  
+    - Node-centric DAG with Value, Collection, and Formula node types.  
     - Strict value caching; unchanged inputs skip computation.  
     - Exact dirty-flag propagation; only affected nodes are reevaluated.
     - Evaluate when node value is read and it's dirty. Never allow reading a dirty value.

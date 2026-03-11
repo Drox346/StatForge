@@ -11,7 +11,7 @@ typedef struct SF_Engine SF_Engine;
 SF_Engine* sf_create_engine(void);
 void sf_destroy_engine(SF_Engine*);
 
-SF_ErrorCode sf_create_aggregator_node(SF_Engine* engine, const char* name);
+SF_ErrorCode sf_create_collection_node(SF_Engine* engine, const char* name);
 SF_ErrorCode sf_create_formula_node(SF_Engine* engine, const char* name, const char* formula);
 SF_ErrorCode sf_create_value_node(SF_Engine* engine, const char* name, double value);
 SF_ErrorCode sf_remove_node(SF_Engine* engine, const char* name);

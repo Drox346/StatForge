@@ -20,7 +20,7 @@ public:
     Engine& operator=(Engine const&) = delete;
 
     /******* Nodes ********/
-    SF_ErrorCode createAggregatorNode(std::string const& name);
+    SF_ErrorCode createCollectionNode(std::string const& name);
     SF_ErrorCode createFormulaNode(std::string const& name, std::string const& formula);
     SF_ErrorCode createValueNode(std::string const& name, double value);
     SF_ErrorCode removeNode(std::string const& name);

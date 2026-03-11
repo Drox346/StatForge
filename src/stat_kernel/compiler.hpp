@@ -15,14 +15,14 @@ public:
     explicit Compiler(statkernel::Graph& graph) : _graph(graph) {
     }
 
-    VoidResult addAggregatorNode(NodeId const& id, std::vector<NodeId> const& dependencies);
+    VoidResult addCollectionNode(NodeId const& id, std::vector<NodeId> const& dependencies);
     VoidResult addFormulaNode(NodeId const& id, std::string_view formula);
     VoidResult addValueNode(NodeId const& id, double value);
 
     VoidResult setNodeFormula(NodeId const& id, std::string_view formula);
-    VoidResult setAggNodeDependencies(NodeId const& id,
-                                      std::vector<NodeId> const& dependencies,
-                                      bool skipCycleCheck = false);
+    VoidResult setCollectionNodeDependencies(NodeId const& id,
+                                             std::vector<NodeId> const& dependencies,
+                                             bool skipCycleCheck = false);
 
 private:
     VoidResult setNodeDependencies(NodeId const& id,

@@ -13,7 +13,7 @@ class StatKernel {
 public:
     StatKernel();
 
-    VoidResult createAggregatorNode(NodeId const& id,
+    VoidResult createCollectionNode(NodeId const& id,
                                     std::vector<NodeId> const& dependencies); //compiler/eval
     VoidResult createFormulaNode(NodeId const& id, std::string_view formula); //compiler/eval
     VoidResult createValueNode(NodeId const& id, double value);               //compiler/eval

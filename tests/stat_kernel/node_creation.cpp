@@ -42,34 +42,34 @@ TEST_CASE("basic spreadsheet setup") {
     CHECK(kernel.createValueNode("MoreLifeTree", 20));
     CHECK(kernel.createValueNode("MoreLifeGear", 10));
 
-    CHECK(kernel.createAggregatorNode("Ag_FlatStr", {"FlatStrTree", "FlatStrGear"}));
-    CHECK(kernel.createAggregatorNode("Ag_IncStr", {"IncStrTree", "IncStrGear"}));
+    CHECK(kernel.createCollectionNode("Col_FlatStr", {"FlatStrTree", "FlatStrGear"}));
+    CHECK(kernel.createCollectionNode("Col_IncStr", {"IncStrTree", "IncStrGear"}));
     CHECK(
-        kernel.createAggregatorNode("Ag_FlatLife",
+        kernel.createCollectionNode("Col_FlatLife",
                                     {"FlatLifeLevel", "FlatLifeGear", "FlatLifeTree", "BaseLife"}));
-    CHECK(kernel.createAggregatorNode("Ag_IncLife", {"IncLifeGear", "IncLifeTree"}));
-    CHECK(kernel.createAggregatorNode("Ag_MoreLife", {"MoreLifeGear", "MoreLifeTree"}));
+    CHECK(kernel.createCollectionNode("Col_IncLife", {"IncLifeGear", "IncLifeTree"}));
+    CHECK(kernel.createCollectionNode("Col_MoreLife", {"MoreLifeGear", "MoreLifeTree"}));
 
-    CHECK(kernel.createFormulaNode("FinalStr", "<Ag_FlatStr> * (1 + <Ag_IncStr> / 100)"));
+    CHECK(kernel.createFormulaNode("FinalStr", "<Col_FlatStr> * (1 + <Col_IncStr> / 100)"));
     CHECK(kernel.createFormulaNode("FlatLifeStr", "<FinalStr> * <LifePerStr>"));
     CHECK(kernel.createFormulaNode(
         "FinalLife",
-        "(<Ag_FlatLife> + <FlatLifeStr>) * (1 + <Ag_IncLife> / 100) * (1 + <Ag_MoreLife> / 100)"));
+        "(<Col_FlatLife> + <FlatLifeStr>) * (1 + <Col_IncLife> / 100) * (1 + <Col_MoreLife> / 100)"));
 
     CHECK(kernel.evaluate());
 
     const auto finalLife = kernel.getNodeValue("FinalLife");
     REQUIRE(finalLife);
 
-    constexpr double Ag_FlatStr = 50.0 + 25.0;
-    constexpr double Ag_IncStr = 30.0 + 20.0;
-    constexpr double Ag_FlatLife = 100.0 + 40.0 + 20.0 + 10.0;
-    constexpr double Ag_IncLife = 10.0 + 15.0;
-    constexpr double Ag_MoreLife = 20.0 + 10.0;
-    constexpr double FinalStr = Ag_FlatStr * (1.0 + Ag_IncStr / 100.0);
+    constexpr double Col_FlatStr = 50.0 + 25.0;
+    constexpr double Col_IncStr = 30.0 + 20.0;
+    constexpr double Col_FlatLife = 100.0 + 40.0 + 20.0 + 10.0;
+    constexpr double Col_IncLife = 10.0 + 15.0;
+    constexpr double Col_MoreLife = 20.0 + 10.0;
+    constexpr double FinalStr = Col_FlatStr * (1.0 + Col_IncStr / 100.0);
     constexpr double FlatLifeStr = FinalStr * 1.5;
     constexpr double expectedFinalLife =
-        (Ag_FlatLife + FlatLifeStr) * (1.0 + Ag_IncLife / 100.0) * (1.0 + Ag_MoreLife / 100.0);
+        (Col_FlatLife + FlatLifeStr) * (1.0 + Col_IncLife / 100.0) * (1.0 + Col_MoreLife / 100.0);
 
     CHECK_EQ(*finalLife, doctest::Approx(expectedFinalLife).epsilon(0.001));
 }
@@ -80,29 +80,29 @@ TEST_CASE("node creation errors") {
     SUBCASE("duplicate node") {
         CHECK(kernel.createValueNode("val", 2));
         CHECK(kernel.createFormulaNode("formula", "<val> + 2"));
-        CHECK(kernel.createAggregatorNode("agg", {"formula"}));
+        CHECK(kernel.createCollectionNode("collection", {"formula"}));
 
-        auto aggVal = kernel.getNodeValue("agg");
-        REQUIRE(aggVal);
-        CHECK_EQ(*aggVal, 4);
+        auto collectionVal = kernel.getNodeValue("collection");
+        REQUIRE(collectionVal);
+        CHECK_EQ(*collectionVal, 4);
 
         checkErrorCode(kernel.createValueNode("val", 5), SF_ERR_NODE_ALREADY_EXISTS);
         checkErrorCode(kernel.createFormulaNode("formula", "3 - <val>"),
                        SF_ERR_NODE_ALREADY_EXISTS);
-        checkErrorCode(kernel.createAggregatorNode("agg", {"val"}), SF_ERR_NODE_ALREADY_EXISTS);
+        checkErrorCode(kernel.createCollectionNode("collection", {"val"}), SF_ERR_NODE_ALREADY_EXISTS);
 
-        aggVal = kernel.getNodeValue("agg");
-        REQUIRE(aggVal);
-        CHECK_EQ(*aggVal, 4);
+        collectionVal = kernel.getNodeValue("collection");
+        REQUIRE(collectionVal);
+        CHECK_EQ(*collectionVal, 4);
     }
     SUBCASE("dependency doesn't exit") {
         checkErrorCode(kernel.createFormulaNode("formula", "3 - <sdfdfgdfgdfg>"),
                        SF_ERR_DEPENDENCY_DOESNT_EXIST);
-        checkErrorCode(kernel.createAggregatorNode("agg", {"fdshosadfojksdfoijksdrfff"}),
+        checkErrorCode(kernel.createCollectionNode("collection", {"fdshosadfojksdfoijksdrfff"}),
                        SF_ERR_DEPENDENCY_DOESNT_EXIST);
 
         checkErrorCode(kernel.getNodeValue("formula"), SF_ERR_NODE_NOT_FOUND);
-        checkErrorCode(kernel.getNodeValue("agg"), SF_ERR_NODE_NOT_FOUND);
+        checkErrorCode(kernel.getNodeValue("collection"), SF_ERR_NODE_NOT_FOUND);
     }
     SUBCASE("ill-formed dsl") {
         checkErrorCode(kernel.createFormulaNode("formula1", "3 - <<>"), SF_ERR_INVALID_DSL);
@@ -116,8 +116,8 @@ TEST_CASE("node manipulation errors") {
     CHECK(kernel.createValueNode("value2", 60));
     CHECK(kernel.createFormulaNode("formula1", "<value1>"));
     CHECK(kernel.createFormulaNode("formula2", "<value2>"));
-    CHECK(kernel.createAggregatorNode("agg1", {"value1"}));
-    CHECK(kernel.createAggregatorNode("agg2", {"value2"}));
+    CHECK(kernel.createCollectionNode("collection1", {"value1"}));
+    CHECK(kernel.createCollectionNode("collection2", {"value2"}));
 
     SUBCASE("cyclic dependencies") {
         constexpr size_t distance = 100;
@@ -130,28 +130,28 @@ TEST_CASE("node manipulation errors") {
         checkErrorCode(kernel.setNodeFormula("f0", "<f" + std::to_string(distance - 1) + ">"),
                        SF_ERR_DEPENDENCY_LOOP);
 
-        CHECK(kernel.createAggregatorNode("a0", {"value1"}));
+        CHECK(kernel.createCollectionNode("c0", {"value1"}));
         for (size_t i = 1; i < distance; ++i) {
-            CHECK(kernel.createAggregatorNode("a" + std::to_string(i),
-                                              {"a" + std::to_string(i - 1)}));
+            CHECK(kernel.createCollectionNode("c" + std::to_string(i),
+                                              {"c" + std::to_string(i - 1)}));
         }
-        checkErrorCode(kernel.setNodeDependencies("a0", {"a" + std::to_string(distance - 1)}),
+        checkErrorCode(kernel.setNodeDependencies("c0", {"c" + std::to_string(distance - 1)}),
                        SF_ERR_DEPENDENCY_LOOP);
     }
     SUBCASE("self reference") {
         checkErrorCode(kernel.createFormulaNode("formula3", "<formula3>"), SF_ERR_SELF_REFERENCE);
-        checkErrorCode(kernel.createAggregatorNode("agg3", {"agg3"}), SF_ERR_SELF_REFERENCE);
+        checkErrorCode(kernel.createCollectionNode("collection3", {"collection3"}), SF_ERR_SELF_REFERENCE);
 
         checkErrorCode(kernel.setNodeFormula("formula1", "<formula1>"), SF_ERR_SELF_REFERENCE);
-        checkErrorCode(kernel.setNodeDependencies("agg1", {"agg1"}), SF_ERR_SELF_REFERENCE);
+        checkErrorCode(kernel.setNodeDependencies("collection1", {"collection1"}), SF_ERR_SELF_REFERENCE);
     }
     SUBCASE("wrong node types") {
         SUBCASE("setValue") {
             checkErrorCode(kernel.setNodeValue("formula1", 10), SF_ERR_NODE_TYPE_MISMATCH);
             checkValue(kernel, "formula1", 50);
 
-            checkErrorCode(kernel.setNodeValue("agg1", 10), SF_ERR_NODE_TYPE_MISMATCH);
-            checkValue(kernel, "agg1", 50);
+            checkErrorCode(kernel.setNodeValue("collection1", 10), SF_ERR_NODE_TYPE_MISMATCH);
+            checkValue(kernel, "collection1", 50);
 
             CHECK(kernel.setNodeValue("value1", 10));
             checkValue(kernel, "value1", 10);
@@ -160,8 +160,8 @@ TEST_CASE("node manipulation errors") {
             checkErrorCode(kernel.setNodeFormula("value1", "<value2>"), SF_ERR_NODE_TYPE_MISMATCH);
             checkValue(kernel, "value1", 50);
 
-            checkErrorCode(kernel.setNodeFormula("agg1", "<value2>"), SF_ERR_NODE_TYPE_MISMATCH);
-            checkValue(kernel, "agg1", 50);
+            checkErrorCode(kernel.setNodeFormula("collection1", "<value2>"), SF_ERR_NODE_TYPE_MISMATCH);
+            checkValue(kernel, "collection1", 50);
 
             CHECK(kernel.setNodeFormula("formula1", "<value2>"));
             checkValue(kernel, "formula1", 60);
@@ -175,8 +175,8 @@ TEST_CASE("node manipulation errors") {
                            SF_ERR_NODE_TYPE_MISMATCH);
             checkValue(kernel, "formula1", 50);
 
-            CHECK(kernel.setNodeDependencies("agg1", {"value2"}));
-            checkValue(kernel, "agg1", 60);
+            CHECK(kernel.setNodeDependencies("collection1", {"value2"}));
+            checkValue(kernel, "collection1", 60);
         }
     }
     SUBCASE("ill-formed dsl") {

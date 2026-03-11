@@ -16,9 +16,9 @@ using namespace statkernel;
 StatKernel::StatKernel() : _compiler(_graph), _executor(_graph) {
 }
 
-VoidResult StatKernel::createAggregatorNode(NodeId const& id,
+VoidResult StatKernel::createCollectionNode(NodeId const& id,
                                             std::vector<NodeId> const& dependencies) {
-    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.addAggregatorNode(id, dependencies));
+    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.addCollectionNode(id, dependencies));
     _executor.markAsDirtyLeaf(id);
 
     return {};
@@ -72,7 +72,7 @@ VoidResult StatKernel::setNodeFormula(NodeId const& id, std::string_view formula
 
 VoidResult StatKernel::setNodeDependencies(NodeId const& id,
                                            std::vector<NodeId> const& dependencies) {
-    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.setAggNodeDependencies(id, dependencies));
+    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.setCollectionNodeDependencies(id, dependencies));
     _executor.markDirty(id);
 
     return {};

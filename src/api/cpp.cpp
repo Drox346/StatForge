@@ -12,8 +12,8 @@ Engine::Engine(Engine&& other) noexcept = default;
 
 Engine& Engine::operator=(Engine&& other) noexcept = default;
 
-SF_ErrorCode Engine::createAggregatorNode(std::string const& name) {
-    return _impl->createAggregatorNode(name);
+SF_ErrorCode Engine::createCollectionNode(std::string const& name) {
+    return _impl->createCollectionNode(name);
 }
 
 SF_ErrorCode Engine::createFormulaNode(std::string const& name, std::string const& formula) {

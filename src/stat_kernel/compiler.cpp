@@ -16,7 +16,7 @@ constexpr bool skipCycleCheck = true;
 
 namespace statforge::statkernel {
 
-VoidResult Compiler::addAggregatorNode(NodeId const& id, std::vector<NodeId> const& dependencies) {
+VoidResult Compiler::addCollectionNode(NodeId const& id, std::vector<NodeId> const& dependencies) {
     SF_RETURN_ERROR_IF_UNEXPECTED(_graph.addNode(id, {}));
 
     // newly created nodes cannot appear as dependencies of existing nodes.
@@ -27,7 +27,7 @@ VoidResult Compiler::addAggregatorNode(NodeId const& id, std::vector<NodeId> con
         return result;
     }
 
-    auto aggregate = [this, id]() -> NodeValue {
+    auto collect = [this, id]() -> NodeValue {
         NodeValue value{0};
 
         const auto& dependencies = _graph.dependencies(id);
@@ -39,7 +39,7 @@ VoidResult Compiler::addAggregatorNode(NodeId const& id, std::vector<NodeId> con
     };
 
     _graph.node(
-        id) = {.formula = aggregate, .value = 0, .type = NodeType::Aggregator, .dirty = true};
+        id) = {.formula = collect, .value = 0, .type = NodeType::Collection, .dirty = true};
 
     return {};
 }
@@ -94,13 +94,13 @@ VoidResult Compiler::setNodeFormula(NodeId const& id, std::string_view formula) 
     return {};
 }
 
-VoidResult Compiler::setAggNodeDependencies(NodeId const& id,
-                                            std::vector<NodeId> const& dependencies,
-                                            bool skipCycleCheck) {
+VoidResult Compiler::setCollectionNodeDependencies(NodeId const& id,
+                                                   std::vector<NodeId> const& dependencies,
+                                                   bool skipCycleCheck) {
     SF_RETURN_UNEXPECTED_IF(
-        _graph.contains(id) && (_graph.node(id).type != NodeType::Aggregator),
+        _graph.contains(id) && (_graph.node(id).type != NodeType::Collection),
         SF_ERR_NODE_TYPE_MISMATCH,
-        std::format(R"(Trying to manually change dependencies of non aggregator node "{}")", id));
+        std::format(R"(Trying to manually change dependencies of non collection node "{}")", id));
 
     return setNodeDependencies(id, dependencies, skipCycleCheck);
 }

@@ -57,8 +57,8 @@ void logNodes(std::string const& fileName,
         if (node.type == NodeType::Formula) {
             rectangleDescriptions << " <<Formula>>";
         }
-        if (node.type == NodeType::Aggregator) {
-            rectangleDescriptions << " <<Agg>>";
+        if (node.type == NodeType::Collection) {
+            rectangleDescriptions << " <<Collection>>";
         }
         rectangleDescriptions << "\n";
 
