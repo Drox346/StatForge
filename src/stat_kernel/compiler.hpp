@@ -3,8 +3,8 @@
 #include "error/internal/error.hpp"
 #include "types/definitions.hpp"
 #include <dsl/evaluator.hpp>
-#include <stat_kernel/cell.hpp>
 #include <stat_kernel/graph.hpp>
+#include <stat_kernel/node.hpp>
 #include <string_view>
 
 namespace statforge::statkernel {
@@ -15,18 +15,18 @@ public:
     explicit Compiler(statkernel::Graph& graph) : _graph(graph) {
     }
 
-    VoidResult addAggregatorCell(CellId const& id, std::vector<CellId> const& dependencies);
-    VoidResult addFormulaCell(CellId const& id, std::string_view formula);
-    VoidResult addValueCell(CellId const& id, double value);
+    VoidResult addAggregatorNode(NodeId const& id, std::vector<NodeId> const& dependencies);
+    VoidResult addFormulaNode(NodeId const& id, std::string_view formula);
+    VoidResult addValueNode(NodeId const& id, double value);
 
-    VoidResult setCellFormula(CellId const& id, std::string_view formula);
-    VoidResult setAggCellDependencies(CellId const& id,
-                                      std::vector<CellId> const& dependencies,
+    VoidResult setNodeFormula(NodeId const& id, std::string_view formula);
+    VoidResult setAggNodeDependencies(NodeId const& id,
+                                      std::vector<NodeId> const& dependencies,
                                       bool skipCycleCheck = false);
 
 private:
-    VoidResult setCellDependencies(CellId const& id,
-                                   std::vector<CellId> const& dependencies,
+    VoidResult setNodeDependencies(NodeId const& id,
+                                   std::vector<NodeId> const& dependencies,
                                    bool skipCycleCheck = false);
 
     struct CompiledAst {
@@ -36,8 +36,8 @@ private:
         dsl::ExpressionTree expr;
     };
     using CompiledAstResult = Result<CompiledAst>;
-    static CompiledAstResult compileAst(CellId const& id, std::string_view formula);
-    CellFormula compileCellFormula(CompiledAst ast);
+    static CompiledAstResult compileAst(NodeId const& id, std::string_view formula);
+    NodeFormula compileNodeFormula(CompiledAst ast);
 
     statkernel::Graph& _graph;
 };

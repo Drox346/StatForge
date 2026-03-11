@@ -2,7 +2,7 @@
 ├── clear.sh
 ├── CMakeLists.txt
 ├── doc
-│   ├── cell_dependencies_example.drawio
+│   ├── node_dependencies_example.drawio
 │   ├── code_format.txt
 │   ├── design_document.md
 │   ├── dsl_draft_action.txt
@@ -63,7 +63,7 @@
 │   │   ├── rule_engine.hpp
 │   │   └── rule.hpp
 │   ├── stat_kernel
-│   │   ├── cell.hpp
+│   │   ├── node.hpp
 │   │   ├── compiler.cpp
 │   │   ├── compiler.hpp
 │   │   ├── executor.cpp
@@ -87,5 +87,5 @@
     ├── rules
     │   └── action_draft.cpp
     ├── stat_kernel
-    │   └── cell_creation.cpp
+    │   └── node_creation.cpp
     └── test_util.hpp

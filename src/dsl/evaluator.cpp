@@ -78,10 +78,10 @@ double evaluate(ExpressionTree const& expression, Context const& context) {
                 }
 
                 if constexpr (std::is_same_v<Node, Ref>) {
-                    if (!context.cellLookup) {
-                        unreachable("Missing cell-lookup callback");
+                    if (!context.nodeLookup) {
+                        unreachable("Missing node-lookup callback");
                     }
-                    return context.cellLookup(actual.name);
+                    return context.nodeLookup(actual.name);
                 }
 
                 if constexpr (std::is_same_v<Node, Unary>) {
@@ -155,8 +155,8 @@ double evaluate(ExpressionTree const& expression, Context const& context) {
     return visit(expression);
 }
 
-std::vector<CellId> extractDependencies(ExpressionTree const& expression) {
-    std::vector<CellId> dependencies;
+std::vector<NodeId> extractDependencies(ExpressionTree const& expression) {
+    std::vector<NodeId> dependencies;
     std::vector<ExpressionTree const*> queue;
     queue.push_back(&expression);
 

@@ -1,37 +1,37 @@
 #pragma once
 
 #include "error/internal/error.hpp"
-#include "stat_kernel/cell.hpp"
+#include "stat_kernel/node.hpp"
 #include "types/definitions.hpp"
 
 namespace statforge::statkernel {
 
 class Graph {
 public:
-    [[nodiscard]] bool contains(CellId const& id) const;
+    [[nodiscard]] bool contains(NodeId const& id) const;
 
-    // IMPPORTANT: For performance reasons calling "cell()" on a non-existing cell is
+    // IMPPORTANT: For performance reasons calling "node()" on a non-existing node is
     // invalid and will terminate the program. Call contains() first if necessary.
-    [[nodiscard]] Cell& cell(CellId const& id);
-    [[nodiscard]] Cell const& cell(CellId const& id) const;
+    [[nodiscard]] Node& node(NodeId const& id);
+    [[nodiscard]] Node const& node(NodeId const& id) const;
 
-    [[nodiscard]] std::vector<CellId> const& dependencies(CellId const& id) const;
-    [[nodiscard]] std::vector<CellId> const& dependents(CellId const& id) const;
+    [[nodiscard]] std::vector<NodeId> const& dependencies(NodeId const& id) const;
+    [[nodiscard]] std::vector<NodeId> const& dependents(NodeId const& id) const;
 
-    VoidResult addCell(CellId id, Cell cell);
-    VoidResult setCellDependencies(CellId id,
-                                   std::vector<CellId> deps,
+    VoidResult addNode(NodeId id, Node node);
+    VoidResult setNodeDependencies(NodeId id,
+                                   std::vector<NodeId> deps,
                                    bool skipCycleCheck = false);
-    VoidResult removeCell(CellId const& id);
+    VoidResult removeNode(NodeId const& id);
 
     void clear();
 
 private:
-    [[nodiscard]] std::vector<CellId>& dependents(CellId const& id);
+    [[nodiscard]] std::vector<NodeId>& dependents(NodeId const& id);
 
-    std::unordered_map<CellId, Cell> _cells;
-    std::unordered_map<CellId, std::vector<CellId>> _dependenciesMap;
-    std::unordered_map<CellId, std::vector<CellId>> _dependentsMap;
+    std::unordered_map<NodeId, Node> _nodes;
+    std::unordered_map<NodeId, std::vector<NodeId>> _dependenciesMap;
+    std::unordered_map<NodeId, std::vector<NodeId>> _dependentsMap;
 };
 
 } // namespace statforge::statkernel

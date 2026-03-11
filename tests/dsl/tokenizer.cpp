@@ -33,9 +33,9 @@ TEST_CASE("simple arithmetic") {
     CHECK_EQ(tokens[4], TokenKind::Number);
 }
 
-TEST_CASE("cell reference and comparison") {
+TEST_CASE("node reference and comparison") {
     auto tokens = getTokenKinds("<level> == 47");
-    CHECK_EQ(tokens[0], TokenKind::CellRef);
+    CHECK_EQ(tokens[0], TokenKind::NodeRef);
     CHECK_EQ(tokens[1], TokenKind::EqualEqual);
     CHECK_EQ(tokens[2], TokenKind::Number);
 }

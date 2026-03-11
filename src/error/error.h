@@ -11,7 +11,7 @@ typedef enum SF_ErrorCode {
     SF_OK = 0,
 
 
-    /*** Cell manipulation ***/
+    /*** Node manipulation ***/
     /*
         Errors in this category indicate that an operation was attempted
         but rejected. No changes were applied to the spreadsheet state.
@@ -20,8 +20,8 @@ typedef enum SF_ErrorCode {
     // DSL input was ill-formed.
     SF_ERR_INVALID_DSL = 100,
 
-    // Attempted to create a cell with an ID that already exists.
-    SF_ERR_CELL_ALREADY_EXISTS,
+    // Attempted to create a node with an ID that already exists.
+    SF_ERR_NODE_ALREADY_EXISTS,
 
     // Attempted to set a formula that references itself.
     SF_ERR_SELF_REFERENCE,
@@ -29,17 +29,17 @@ typedef enum SF_ErrorCode {
     // Requested dependency would introduce a direct or indirect cycle.
     SF_ERR_DEPENDENCY_LOOP,
 
-    // Attempted to reference a cell that does not exist.
+    // Attempted to reference a node that does not exist.
     SF_ERR_DEPENDENCY_DOESNT_EXIST,
 
-    // Attempted to remove a cell required by a formula cell.
-    SF_ERR_DEPENDENT_FORMULA_CELL,
+    // Attempted to remove a node required by a formula node.
+    SF_ERR_DEPENDENT_FORMULA_NODE,
 
-    // Attempted to access a cell that does not exist.
-    SF_ERR_CELL_NOT_FOUND,
+    // Attempted to access a node that does not exist.
+    SF_ERR_NODE_NOT_FOUND,
 
-    // Attempted to perform an action on a cell with a cell type that doesn't support that action.
-    SF_ERR_CELL_TYPE_MISMATCH,
+    // Attempted to perform an action on a node with a node type that doesn't support that action.
+    SF_ERR_NODE_TYPE_MISMATCH,
 
 
     /*** Evaluation ***/

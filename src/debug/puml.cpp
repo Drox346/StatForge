@@ -6,8 +6,8 @@
 
 namespace {
 
-static std::string hashId(statforge::CellId const& id) {
-    size_t const h = std::hash<statforge::CellId>{}(id);
+static std::string hashId(statforge::NodeId const& id) {
+    size_t const h = std::hash<statforge::NodeId>{}(id);
     return std::string{"id"} + std::to_string(h);
 }
 
@@ -17,9 +17,9 @@ namespace statforge::debug {
 
 using namespace statkernel;
 
-void logCells(std::string const& fileName,
-              std::unordered_map<CellId, Cell> const& cells,
-              std::unordered_map<CellId, std::vector<CellId>> const& dependencyMap) {
+void logNodes(std::string const& fileName,
+              std::unordered_map<NodeId, Node> const& nodes,
+              std::unordered_map<NodeId, std::vector<NodeId>> const& dependencyMap) {
     std::ostringstream debugText;
     debugText << "@startuml\n"
                  "hide stereotype\n"
@@ -35,29 +35,29 @@ void logCells(std::string const& fileName,
     std::ostringstream rectangleDescriptions;
     std::ostringstream dependencyDescriptions;
 
-    for (auto const& [id, cell] : cells) {
+    for (auto const& [id, node] : nodes) {
         std::ostringstream valStream;
-        valStream << std::fixed << std::setprecision(2) << cell.value;
-        std::string const cellValStr = valStream.str();
-        std::string const cellIdHash = hashId(id);
+        valStream << std::fixed << std::setprecision(2) << node.value;
+        std::string const nodeValStr = valStream.str();
+        std::string const nodeIdHash = hashId(id);
 
         rectangleDescriptions << "rectangle \"<b>" << id << "</b>\\nValue: ";
-        if (cell.dirty) {
+        if (node.dirty) {
             rectangleDescriptions << "DIRTY";
         } else {
-            rectangleDescriptions << cellValStr;
+            rectangleDescriptions << nodeValStr;
         }
-        rectangleDescriptions << "\" as " << cellIdHash;
-        if (cell.dirty) {
+        rectangleDescriptions << "\" as " << nodeIdHash;
+        if (node.dirty) {
             rectangleDescriptions << " <<Dirty>>";
         }
-        if (cell.type == CellType::Value) {
+        if (node.type == NodeType::Value) {
             rectangleDescriptions << " <<Value>>";
         }
-        if (cell.type == CellType::Formula) {
+        if (node.type == NodeType::Formula) {
             rectangleDescriptions << " <<Formula>>";
         }
-        if (cell.type == CellType::Aggregator) {
+        if (node.type == NodeType::Aggregator) {
             rectangleDescriptions << " <<Agg>>";
         }
         rectangleDescriptions << "\n";
@@ -68,7 +68,7 @@ void logCells(std::string const& fileName,
         const auto& dependencies = dependencyMap.at(id);
         for (auto const& dep : dependencies) {
             std::string const depIdHash = hashId(dep);
-            dependencyDescriptions << depIdHash << " --> " << cellIdHash << "\n";
+            dependencyDescriptions << depIdHash << " --> " << nodeIdHash << "\n";
         }
     }
 

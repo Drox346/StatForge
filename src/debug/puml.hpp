@@ -1,12 +1,12 @@
 #pragma once
 
-#include "stat_kernel/cell.hpp"
+#include "stat_kernel/node.hpp"
 #include "types/definitions.hpp"
 
 namespace statforge::debug {
 
-void logCells(std::string const& fileName,
-              std::unordered_map<CellId, statkernel::Cell> const& cells,
-              std::unordered_map<CellId, std::vector<CellId>> const& dependencyMap);
+void logNodes(std::string const& fileName,
+              std::unordered_map<NodeId, statkernel::Node> const& nodes,
+              std::unordered_map<NodeId, std::vector<NodeId>> const& dependencyMap);
 
 } // namespace statforge::debug

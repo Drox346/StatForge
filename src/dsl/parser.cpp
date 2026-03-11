@@ -197,7 +197,7 @@ ExprPtrResult Parser::parsePrimary() {
     case TokenKind::Number:
         return std::make_unique<ExpressionTree>(Literal{.value = token.number, .span = token.span});
 
-    case TokenKind::CellRef:
+    case TokenKind::NodeRef:
         return std::make_unique<ExpressionTree>(Ref{.name = token.lexeme, .span = token.span});
 
     case TokenKind::Identifier:
@@ -219,7 +219,7 @@ ExprPtrResult Parser::parsePrimary() {
                 Call{.name = token.lexeme, .args = std::move(args), .span = token.span});
         }
         return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL,
-                                              "Bare identifier not allowed, use <id> for cell ref",
+                                              "Bare identifier not allowed, use <id> for node ref",
                                               token.span));
 
     case TokenKind::Plus:

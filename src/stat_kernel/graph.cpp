@@ -2,7 +2,7 @@
 
 #include "error/error.h"
 #include "error/internal/error.hpp"
-#include "stat_kernel/cell.hpp"
+#include "stat_kernel/node.hpp"
 #include "types/definitions.hpp"
 
 #include <algorithm>
@@ -15,12 +15,12 @@ namespace statforge::statkernel {
 
 namespace {
 
-bool hasPath(CellId const& src,
-             CellId const& target,
-             std::unordered_map<CellId, std::vector<CellId>> const& dependencyMap) {
+bool hasPath(NodeId const& src,
+             NodeId const& target,
+             std::unordered_map<NodeId, std::vector<NodeId>> const& dependencyMap) {
     //static for performance gains, avoiding heap allocations on every single call
-    static std::stack<CellId> work;
-    static std::unordered_set<CellId> visited;
+    static std::stack<NodeId> work;
+    static std::unordered_set<NodeId> visited;
 
     //clear data from previous calls
     while (!work.empty()) {
@@ -51,25 +51,25 @@ bool hasPath(CellId const& src,
     return false;
 }
 
-const std::vector<CellId> emptyVec{};
+const std::vector<NodeId> emptyVec{};
 
 } // namespace
 
-bool Graph::contains(CellId const& id) const {
-    return _cells.contains(id);
+bool Graph::contains(NodeId const& id) const {
+    return _nodes.contains(id);
 }
 
-Cell& Graph::cell(CellId const& id) {
-    return const_cast<Cell&>(static_cast<Graph const&>(*this).cell(id));
+Node& Graph::node(NodeId const& id) {
+    return const_cast<Node&>(static_cast<Graph const&>(*this).node(id));
 }
 
-Cell const& Graph::cell(CellId const& id) const {
-    auto it = _cells.find(id);
-    assert(it != _cells.end());
+Node const& Graph::node(NodeId const& id) const {
+    auto it = _nodes.find(id);
+    assert(it != _nodes.end());
     return it->second;
 }
 
-std::vector<CellId> const& Graph::dependencies(CellId const& id) const {
+std::vector<NodeId> const& Graph::dependencies(NodeId const& id) const {
     auto it = _dependenciesMap.find(id);
     if (it != _dependenciesMap.end()) {
         return it->second;
@@ -78,7 +78,7 @@ std::vector<CellId> const& Graph::dependencies(CellId const& id) const {
     return emptyVec;
 }
 
-std::vector<CellId> const& Graph::dependents(CellId const& id) const {
+std::vector<NodeId> const& Graph::dependents(NodeId const& id) const {
     auto it = _dependentsMap.find(id);
     if (it != _dependentsMap.end()) {
         return it->second;
@@ -87,20 +87,20 @@ std::vector<CellId> const& Graph::dependents(CellId const& id) const {
     return emptyVec;
 }
 
-VoidResult Graph::addCell(CellId id, Cell cell) {
-    auto [it, inserted] = _cells.emplace(std::move(id), std::move(cell));
+VoidResult Graph::addNode(NodeId id, Node node) {
+    auto [it, inserted] = _nodes.emplace(std::move(id), std::move(node));
     SF_RETURN_UNEXPECTED_IF(!inserted,
-                            SF_ERR_CELL_ALREADY_EXISTS,
-                            std::format(R"(Trying to add already existing cell "{}")", it->first));
+                            SF_ERR_NODE_ALREADY_EXISTS,
+                            std::format(R"(Trying to add already existing node "{}")", it->first));
 
     return {};
 }
 
-VoidResult Graph::setCellDependencies(CellId id, std::vector<CellId> newDeps, bool skipCycleCheck) {
+VoidResult Graph::setNodeDependencies(NodeId id, std::vector<NodeId> newDeps, bool skipCycleCheck) {
     SF_RETURN_UNEXPECTED_IF(
         !contains(id),
-        SF_ERR_CELL_NOT_FOUND,
-        std::format(R"(Trying to set dependencies for non-existing cell "{}")", id));
+        SF_ERR_NODE_NOT_FOUND,
+        std::format(R"(Trying to set dependencies for non-existing node "{}")", id));
 
     for (auto const& dependency : newDeps) {
         SF_RETURN_UNEXPECTED_IF(
@@ -144,21 +144,21 @@ VoidResult Graph::setCellDependencies(CellId id, std::vector<CellId> newDeps, bo
     return {};
 }
 
-VoidResult Graph::removeCell(CellId const& id) {
-    auto cellIt = _cells.find(id);
-    SF_RETURN_UNEXPECTED_IF(cellIt == _cells.end(),
-                            SF_ERR_CELL_NOT_FOUND,
-                            std::format(R"(Trying to remove non-existing cell "{}")", id));
+VoidResult Graph::removeNode(NodeId const& id) {
+    auto nodeIt = _nodes.find(id);
+    SF_RETURN_UNEXPECTED_IF(nodeIt == _nodes.end(),
+                            SF_ERR_NODE_NOT_FOUND,
+                            std::format(R"(Trying to remove non-existing node "{}")", id));
 
     // erase dependency from dependents
     auto dependentsIt = _dependentsMap.find(id);
     if (dependentsIt != _dependentsMap.end()) {
-        // check that no dependent still needs this cell
+        // check that no dependent still needs this node
         for (auto const& dependentId : dependentsIt->second) {
             SF_RETURN_UNEXPECTED_IF(
-                this->cell(dependentId).type == CellType::Formula,
-                SF_ERR_DEPENDENT_FORMULA_CELL,
-                std::format(R"(Trying to remove cell "{}" that the formula cell "{}" depends on)",
+                this->node(dependentId).type == NodeType::Formula,
+                SF_ERR_DEPENDENT_FORMULA_NODE,
+                std::format(R"(Trying to remove node "{}" that the formula node "{}" depends on)",
                             id,
                             dependentId));
         }
@@ -195,13 +195,13 @@ VoidResult Graph::removeCell(CellId const& id) {
         _dependenciesMap.erase(dependenciesIt);
     }
 
-    _cells.erase(cellIt);
+    _nodes.erase(nodeIt);
 
     return {};
 }
 
 void Graph::clear() {
-    _cells.clear();
+    _nodes.clear();
     _dependenciesMap.clear();
     _dependentsMap.clear();
 }
@@ -209,10 +209,10 @@ void Graph::clear() {
 
 // Will create an entry for "id" if no entry
 // is found, making it safe to edit that entry.
-// Some cells may not have an entry due to not having dependents yet.
+// Some nodes may not have an entry due to not having dependents yet.
 //
 // no entry = no dependents (yet)
-std::vector<CellId>& Graph::dependents(CellId const& id) {
+std::vector<NodeId>& Graph::dependents(NodeId const& id) {
     return _dependentsMap[id];
 }
 

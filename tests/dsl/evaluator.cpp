@@ -21,10 +21,10 @@ auto makeAst(std::string const& src) {
 
 Context makeCtx(std::unordered_map<std::string, double> values = {}) {
     return Context{
-        .cellLookup = [values = std::move(values)](std::string_view const& name) -> double {
+        .nodeLookup = [values = std::move(values)](std::string_view const& name) -> double {
             auto const iter = values.find(std::string{name});
             if (iter == values.end()) {
-                throw std::runtime_error{"unknown cell '" + std::string{name} + '\''};
+                throw std::runtime_error{"unknown node '" + std::string{name} + '\''};
             }
             return iter->second;
         }};
@@ -76,7 +76,7 @@ TEST_CASE("unknown function throws") {
     // CHECK_THROWS_WITH_AS(evaluate(*makeAst("foo(1)"), makeCtx()), "unknown function 'foo'", std::runtime_error);
 }
 
-TEST_CASE("cell reference multiplies correctly") {
+TEST_CASE("node reference multiplies correctly") {
     std::string formula = "<price> * <qty>";
     auto const& astResult = makeAst(formula);
     REQUIRE(astResult);

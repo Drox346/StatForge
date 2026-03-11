@@ -74,9 +74,9 @@ TEST_CASE("long argument list") {
 }
 
 
-// cell reference variants
+// node reference variants
 
-TEST_CASE("cell ref may include underscores and digits") {
+TEST_CASE("node ref may include underscores and digits") {
     CHECK(sexpr("<some_weird_123_name>") == "<some_weird_123_name>");
 }
 

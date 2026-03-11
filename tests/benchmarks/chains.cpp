@@ -24,7 +24,7 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
     for (std::size_t i = 0; i < chains; ++i) {
         const std::string v = "v" + std::to_string(i);
 
-        CHECK_EQ(engine.createValueCell(v, 1.0), SF_OK);
+        CHECK_EQ(engine.createValueNode(v, 1.0), SF_OK);
 
         std::string prev = v;
 
@@ -33,7 +33,7 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
 
             const std::string formula = "root(2, <" + prev + ">) + 1";
 
-            CHECK_EQ(engine.createFormulaCell(cur, formula), SF_OK);
+            CHECK_EQ(engine.createFormulaNode(cur, formula), SF_OK);
 
             prev = cur;
         }
@@ -44,7 +44,7 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
     auto readLeaf = [&](std::size_t chainIdx) -> bool {
         const std::string leaf = "c" + std::to_string(chainIdx) + "_" + std::to_string(depth - 1);
         double value{};
-        return engine.getCellValue(leaf, value) == SF_OK;
+        return engine.getNodeValue(leaf, value) == SF_OK;
     };
 
     const auto t_eval0 = clk::now();
@@ -55,7 +55,7 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
 
     const std::string targetV = "v0";
     const auto t_set0 = clk::now();
-    CHECK_EQ(engine.setCellValue(targetV, 2.0), SF_OK);
+    CHECK_EQ(engine.setNodeValue(targetV, 2.0), SF_OK);
     const auto t_set1 = clk::now();
 
     const auto t_evalOne0 = clk::now();
@@ -68,15 +68,15 @@ TEST_CASE("bench: high leaf count with isolated dependency chains") {
     const auto t_loop0 = clk::now();
     for (int it = 0; it < 2000; ++it) {
         const double x = dist(rng);
-        CHECK_EQ(engine.setCellValue(targetV, x), SF_OK);
+        CHECK_EQ(engine.setNodeValue(targetV, x), SF_OK);
         CHECK(readLeaf(0));
     }
     const auto t_loop1 = clk::now();
 
     std::print("chains {} | depth {}\n"
-               "cell creation: {}ms\n"
+               "node creation: {}ms\n"
                "initial full leaf read: {}ms\n"
-               "setting value of a single value cell: {}ms\n"
+               "setting value of a single value node: {}ms\n"
                "read of single chain leaf: {}ms\n"
                "2000x random val + read of single chain leaf: {}ms\n",
                chains,

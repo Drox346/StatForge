@@ -10,11 +10,11 @@
 namespace statforge::dsl {
 
 struct Context {
-    std::function<double(std::string_view)> cellLookup;
+    std::function<double(std::string_view)> nodeLookup;
 };
 
 double evaluate(ExpressionTree const& expression, Context const& context);
 
-std::vector<CellId> extractDependencies(ExpressionTree const& expression);
+std::vector<NodeId> extractDependencies(ExpressionTree const& expression);
 
 } // namespace statforge::dsl

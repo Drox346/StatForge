@@ -7,23 +7,23 @@
 
 namespace statforge {
 
-using CellValueResult = Result<CellValue>;
+using NodeValueResult = Result<NodeValue>;
 
 class StatKernel {
 public:
     StatKernel();
 
-    VoidResult createAggregatorCell(CellId const& id,
-                                    std::vector<CellId> const& dependencies); //compiler/eval
-    VoidResult createFormulaCell(CellId const& id, std::string_view formula); //compiler/eval
-    VoidResult createValueCell(CellId const& id, double value);               //compiler/eval
+    VoidResult createAggregatorNode(NodeId const& id,
+                                    std::vector<NodeId> const& dependencies); //compiler/eval
+    VoidResult createFormulaNode(NodeId const& id, std::string_view formula); //compiler/eval
+    VoidResult createValueNode(NodeId const& id, double value);               //compiler/eval
 
-    VoidResult removeCell(CellId const& id);
+    VoidResult removeNode(NodeId const& id);
 
-    VoidResult setCellValue(CellId const& id, CellValue value);
-    VoidResult setCellFormula(CellId const& id, std::string_view formula);
-    VoidResult setCellDependencies(CellId const& id, std::vector<CellId> const& dependencies);
-    [[nodiscard]] CellValueResult getCellValue(CellId const& id);
+    VoidResult setNodeValue(NodeId const& id, NodeValue value);
+    VoidResult setNodeFormula(NodeId const& id, std::string_view formula);
+    VoidResult setNodeDependencies(NodeId const& id, std::vector<NodeId> const& dependencies);
+    [[nodiscard]] NodeValueResult getNodeValue(NodeId const& id);
 
     VoidResult evaluate();
 

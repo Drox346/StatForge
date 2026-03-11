@@ -5,7 +5,7 @@
 
 namespace statforge::statkernel {
 
-using CellValueResult = Result<CellValue>;
+using NodeValueResult = Result<NodeValue>;
 
 class Executor {
 public:
@@ -20,19 +20,19 @@ public:
     void setEvaluationType(EvaluationType type);
     void reset();
 
-    void markDirty(CellId const& id);
-    void markAsDirtyLeaf(CellId const& id);
-    void remove(CellId const& id);
-    [[nodiscard]] CellValueResult getCellValue(CellId const& id);
+    void markDirty(NodeId const& id);
+    void markAsDirtyLeaf(NodeId const& id);
+    void remove(NodeId const& id);
+    [[nodiscard]] NodeValueResult getNodeValue(NodeId const& id);
     VoidResult evaluate();
 
 private:
-    void evaluate(CellId const& id);
-    void evaluateRecursive(CellId const& id);
-    void evaluateIterative(CellId const& id);
-    void (Executor::*evaluateImpl)(CellId const& id) = &Executor::evaluateIterative;
+    void evaluate(NodeId const& id);
+    void evaluateRecursive(NodeId const& id);
+    void evaluateIterative(NodeId const& id);
+    void (Executor::*evaluateImpl)(NodeId const& id) = &Executor::evaluateIterative;
 
-    std::vector<CellId> _dirtyLeaves;
+    std::vector<NodeId> _dirtyLeaves;
     [[maybe_unused]] statkernel::Graph& _graph;
 };
 

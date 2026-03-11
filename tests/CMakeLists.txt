@@ -11,7 +11,7 @@ add_executable(
 
     rules/action_draft.cpp
     
-    stat_kernel/cell_creation.cpp
+    stat_kernel/node_creation.cpp
     stat_kernel/reset.cpp
 
     benchmarks/balanced_binary_tree.cpp

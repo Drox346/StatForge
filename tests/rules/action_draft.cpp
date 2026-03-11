@@ -11,30 +11,30 @@
 #include <variant>
 
 struct Remove {
-    statforge::CellId target;
+    statforge::NodeId target;
 };
 struct AddVal {
-    statforge::CellId target;
-    statforge::CellValue value;
+    statforge::NodeId target;
+    statforge::NodeValue value;
 };
 struct AddForm {
-    statforge::CellId target;
+    statforge::NodeId target;
     std::string formula;
 };
 struct AddAgg {
-    statforge::CellId target;
+    statforge::NodeId target;
     std::string deps;
 };
 struct SetVal {
-    statforge::CellId target;
-    statforge::CellValue value;
+    statforge::NodeId target;
+    statforge::NodeValue value;
 };
 struct SetForm {
-    statforge::CellId target;
+    statforge::NodeId target;
     std::string formula;
 };
 struct SetDeps {
-    statforge::CellId target;
+    statforge::NodeId target;
     std::string deps;
 };
 
@@ -51,7 +51,7 @@ statforge::VoidResult applyRule(const Action& action, statforge::StatKernel& ker
     return std::visit(
         overloaded{[&kernel](const Remove& action) { return statforge::VoidResult{}; },
                    [&kernel](const AddVal& action) {
-                       return kernel.createValueCell(action.target, action.value);
+                       return kernel.createValueNode(action.target, action.value);
                    },
                    [&kernel](const AddForm& action) { return statforge::VoidResult{}; },
                    [&kernel](const AddAgg& action) { return statforge::VoidResult{}; },
@@ -81,15 +81,15 @@ statforge::VoidResult applyRule(const Action& action, statforge::StatKernel& ker
 
 TEST_CASE("main") {
     // statforge::StatKernel kernel;
-    // kernel.createValueCell(statforge::CellId{"life"}, 100);
+    // kernel.createValueNode(statforge::NodeId{"life"}, 100);
 
-    // Action addLife = AddVal{.target = statforge::CellId{"life"}, .value = statforge::CellValue{1000}};
+    // Action addLife = AddVal{.target = statforge::NodeId{"life"}, .value = statforge::NodeValue{1000}};
     // auto ruleResult = applyRule(addLife, kernel);
     // if (!ruleResult) {
     //     std::print("{}\n", ruleResult.error().message);
     // }
 
-    // auto valResult = kernel.getCellValue(statforge::CellId{"life"});
+    // auto valResult = kernel.getNodeValue(statforge::NodeId{"life"});
     // if (valResult) {
     //     std::print("{}\n", valResult.value());
     // } else {

@@ -25,19 +25,19 @@ func main() {
 	}
 	defer C.sf_destroy_engine(engine)
 
-	lifeCellName := cString("life")
-	defer C.free(unsafe.Pointer(lifeCellName))
+	lifeNodeName := cString("life")
+	defer C.free(unsafe.Pointer(lifeNodeName))
 
-	C.sf_create_value_cell(engine, lifeCellName, 105.0)
+	C.sf_create_value_node(engine, lifeNodeName, 105.0)
 
-	var cellValue C.double
-	err := C.sf_get_cell_value(engine, lifeCellName, &cellValue)
+	var nodeValue C.double
+	err := C.sf_get_node_value(engine, lifeNodeName, &nodeValue)
 	if err != C.SF_OK {
 		fmt.Printf("Error: %s\n", C.GoString(C.sf_last_error()))
 	} else {
-		fmt.Printf("Val: %.0f\n", float64(cellValue))
+		fmt.Printf("Val: %.0f\n", float64(nodeValue))
 	}
 
-	C.sf_create_value_cell(engine, lifeCellName, 100.0)
+	C.sf_create_value_node(engine, lifeNodeName, 100.0)
 	fmt.Printf("Error: %s\n", C.GoString(C.sf_last_error()))
 }

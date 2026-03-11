@@ -19,15 +19,15 @@ public:
     Engine(Engine const&) = delete;
     Engine& operator=(Engine const&) = delete;
 
-    /******* Cells ********/
-    SF_ErrorCode createAggregatorCell(std::string const& name);
-    SF_ErrorCode createFormulaCell(std::string const& name, std::string const& formula);
-    SF_ErrorCode createValueCell(std::string const& name, double value);
-    SF_ErrorCode removeCell(std::string const& name);
-    SF_ErrorCode setCellValue(std::string const& name, double value);
-    SF_ErrorCode setCellFormula(std::string const& name, std::string const& formula);
-    SF_ErrorCode setCellDependency(std::string const& name, std::string const& dependencies);
-    SF_ErrorCode getCellValue(std::string const& name, double& value) const;
+    /******* Nodes ********/
+    SF_ErrorCode createAggregatorNode(std::string const& name);
+    SF_ErrorCode createFormulaNode(std::string const& name, std::string const& formula);
+    SF_ErrorCode createValueNode(std::string const& name, double value);
+    SF_ErrorCode removeNode(std::string const& name);
+    SF_ErrorCode setNodeValue(std::string const& name, double value);
+    SF_ErrorCode setNodeFormula(std::string const& name, std::string const& formula);
+    SF_ErrorCode setNodeDependency(std::string const& name, std::string const& dependencies);
+    SF_ErrorCode getNodeValue(std::string const& name, double& value) const;
 
     /******* Rules ********/
     SF_ErrorCode createRule(std::string const& name, std::string const& action, double initValue);

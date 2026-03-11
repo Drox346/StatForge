@@ -33,60 +33,17 @@ void sf_destroy_engine(SF_Engine* e) {
     delete e;
 }
 
-SF_ErrorCode sf_create_aggregator_cell(SF_Engine* engine, const char* name) {
+SF_ErrorCode sf_create_aggregator_node(SF_Engine* engine, const char* name) {
     if (auto code = validateEngine(engine); code != SF_OK) {
         return code;
     }
     if (auto code = validateStringArg(name, "name"); code != SF_OK) {
         return code;
     }
-    return engine->engine.createAggregatorCell(name);
+    return engine->engine.createAggregatorNode(name);
 }
 
-SF_ErrorCode sf_create_formula_cell(SF_Engine* engine, const char* name, const char* formula) {
-    if (auto code = validateEngine(engine); code != SF_OK) {
-        return code;
-    }
-    if (auto code = validateStringArg(name, "name"); code != SF_OK) {
-        return code;
-    }
-    if (auto code = validateStringArg(formula, "formula"); code != SF_OK) {
-        return code;
-    }
-    return engine->engine.createFormulaCell(name, formula);
-}
-
-SF_ErrorCode sf_create_value_cell(SF_Engine* engine, const char* name, double value) {
-    if (auto code = validateEngine(engine); code != SF_OK) {
-        return code;
-    }
-    if (auto code = validateStringArg(name, "name"); code != SF_OK) {
-        return code;
-    }
-    return engine->engine.createValueCell(name, value);
-}
-
-SF_ErrorCode sf_remove_cell(SF_Engine* engine, const char* name) {
-    if (auto code = validateEngine(engine); code != SF_OK) {
-        return code;
-    }
-    if (auto code = validateStringArg(name, "name"); code != SF_OK) {
-        return code;
-    }
-    return engine->engine.removeCell(name);
-}
-
-SF_ErrorCode sf_set_cell_value(SF_Engine* engine, const char* name, double value) {
-    if (auto code = validateEngine(engine); code != SF_OK) {
-        return code;
-    }
-    if (auto code = validateStringArg(name, "name"); code != SF_OK) {
-        return code;
-    }
-    return engine->engine.setCellValue(name, value);
-}
-
-SF_ErrorCode sf_set_cell_formula(SF_Engine* engine, const char* name, const char* formula) {
+SF_ErrorCode sf_create_formula_node(SF_Engine* engine, const char* name, const char* formula) {
     if (auto code = validateEngine(engine); code != SF_OK) {
         return code;
     }
@@ -96,10 +53,53 @@ SF_ErrorCode sf_set_cell_formula(SF_Engine* engine, const char* name, const char
     if (auto code = validateStringArg(formula, "formula"); code != SF_OK) {
         return code;
     }
-    return engine->engine.setCellFormula(name, formula);
+    return engine->engine.createFormulaNode(name, formula);
 }
 
-SF_ErrorCode sf_set_cell_dependency(SF_Engine* engine, const char* name, const char* dependencies) {
+SF_ErrorCode sf_create_value_node(SF_Engine* engine, const char* name, double value) {
+    if (auto code = validateEngine(engine); code != SF_OK) {
+        return code;
+    }
+    if (auto code = validateStringArg(name, "name"); code != SF_OK) {
+        return code;
+    }
+    return engine->engine.createValueNode(name, value);
+}
+
+SF_ErrorCode sf_remove_node(SF_Engine* engine, const char* name) {
+    if (auto code = validateEngine(engine); code != SF_OK) {
+        return code;
+    }
+    if (auto code = validateStringArg(name, "name"); code != SF_OK) {
+        return code;
+    }
+    return engine->engine.removeNode(name);
+}
+
+SF_ErrorCode sf_set_node_value(SF_Engine* engine, const char* name, double value) {
+    if (auto code = validateEngine(engine); code != SF_OK) {
+        return code;
+    }
+    if (auto code = validateStringArg(name, "name"); code != SF_OK) {
+        return code;
+    }
+    return engine->engine.setNodeValue(name, value);
+}
+
+SF_ErrorCode sf_set_node_formula(SF_Engine* engine, const char* name, const char* formula) {
+    if (auto code = validateEngine(engine); code != SF_OK) {
+        return code;
+    }
+    if (auto code = validateStringArg(name, "name"); code != SF_OK) {
+        return code;
+    }
+    if (auto code = validateStringArg(formula, "formula"); code != SF_OK) {
+        return code;
+    }
+    return engine->engine.setNodeFormula(name, formula);
+}
+
+SF_ErrorCode sf_set_node_dependency(SF_Engine* engine, const char* name, const char* dependencies) {
     if (auto code = validateEngine(engine); code != SF_OK) {
         return code;
     }
@@ -109,10 +109,10 @@ SF_ErrorCode sf_set_cell_dependency(SF_Engine* engine, const char* name, const c
     if (auto code = validateStringArg(dependencies, "dependencies"); code != SF_OK) {
         return code;
     }
-    return engine->engine.setCellDependency(name, dependencies);
+    return engine->engine.setNodeDependency(name, dependencies);
 }
 
-SF_ErrorCode sf_get_cell_value(SF_Engine* engine, const char* name, double* out_value) {
+SF_ErrorCode sf_get_node_value(SF_Engine* engine, const char* name, double* out_value) {
     if (auto code = validateEngine(engine); code != SF_OK) {
         return code;
     }
@@ -123,16 +123,16 @@ SF_ErrorCode sf_get_cell_value(SF_Engine* engine, const char* name, double* out_
         sf_set_error("out_value is null");
         return SF_ERR_INTERNAL_INVALID_ENGINE_STATE;
     }
-    return engine->engine.getCellValue(name, *out_value);
+    return engine->engine.getNodeValue(name, *out_value);
 }
 
-SF_Value sf_get_cell_value2(SF_Engine* engine, const char* name) {
+SF_Value sf_get_node_value2(SF_Engine* engine, const char* name) {
     SF_Value result = {
         .error = SF_ERR_INTERNAL_INVALID_ENGINE_STATE,
         .value = 0.0,
     };
 
-    SF_ErrorCode code = sf_get_cell_value(engine, name, &result.value);
+    SF_ErrorCode code = sf_get_node_value(engine, name, &result.value);
     result.error = code;
     if (code != SF_OK) {
         result.value = 0.0;

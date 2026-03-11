@@ -5,9 +5,9 @@
 
 namespace statforge {
 
-using CellId = std::string;
-using CellValue = double;
-using FormulaType = std::function<CellValue()>;
+using NodeId = std::string;
+using NodeValue = double;
+using FormulaType = std::function<NodeValue()>;
 
 using RuleId = std::string;
 using RuleValueType = double;

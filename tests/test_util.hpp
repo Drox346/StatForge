@@ -12,9 +12,9 @@ void checkErrorCode(statforge::Result<T> result, SF_ErrorCode code) {
 }
 
 inline void checkValue(statforge::StatKernel& kernel,
-                       std::string const& cellId,
-                       statforge::CellValue value) {
-    auto result = kernel.getCellValue(cellId);
+                       std::string const& nodeId,
+                       statforge::NodeValue value) {
+    auto result = kernel.getNodeValue(nodeId);
     REQUIRE(result);
     CHECK_EQ(*result, value);
 }

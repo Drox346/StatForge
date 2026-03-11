@@ -16,8 +16,8 @@ SF_ErrorCode extractErrorCode(VoidResult&& result) {
     return result.error().errorCode;
 }
 
-std::vector<CellId> parseDependencies(std::string_view dependencies) {
-    std::vector<CellId> parsed;
+std::vector<NodeId> parseDependencies(std::string_view dependencies) {
+    std::vector<NodeId> parsed;
     std::string current;
 
     auto flushCurrent = [&parsed, &current]() {
@@ -45,36 +45,36 @@ EngineImpl::EngineImpl(statkernel::Executor::EvaluationType evaluationType) {
     ctx.kernel.setEvaluationType(evaluationType);
 }
 
-SF_ErrorCode EngineImpl::createAggregatorCell(CellId const& name) {
-    return extractErrorCode(ctx.kernel.createAggregatorCell(name, {}));
+SF_ErrorCode EngineImpl::createAggregatorNode(NodeId const& name) {
+    return extractErrorCode(ctx.kernel.createAggregatorNode(name, {}));
 }
 
-SF_ErrorCode EngineImpl::createFormulaCell(CellId const& name, std::string_view formula) {
-    return extractErrorCode(ctx.kernel.createFormulaCell(name, formula));
+SF_ErrorCode EngineImpl::createFormulaNode(NodeId const& name, std::string_view formula) {
+    return extractErrorCode(ctx.kernel.createFormulaNode(name, formula));
 }
 
-SF_ErrorCode EngineImpl::createValueCell(CellId const& name, double value) {
-    return extractErrorCode(ctx.kernel.createValueCell(name, value));
+SF_ErrorCode EngineImpl::createValueNode(NodeId const& name, double value) {
+    return extractErrorCode(ctx.kernel.createValueNode(name, value));
 }
 
-SF_ErrorCode EngineImpl::removeCell(CellId const& name) {
-    return extractErrorCode(ctx.kernel.removeCell(name));
+SF_ErrorCode EngineImpl::removeNode(NodeId const& name) {
+    return extractErrorCode(ctx.kernel.removeNode(name));
 }
 
-SF_ErrorCode EngineImpl::setCellValue(CellId const& name, double value) {
-    return extractErrorCode(ctx.kernel.setCellValue(name, value));
+SF_ErrorCode EngineImpl::setNodeValue(NodeId const& name, double value) {
+    return extractErrorCode(ctx.kernel.setNodeValue(name, value));
 }
 
-SF_ErrorCode EngineImpl::setCellFormula(CellId const& name, std::string_view formula) {
-    return extractErrorCode(ctx.kernel.setCellFormula(name, formula));
+SF_ErrorCode EngineImpl::setNodeFormula(NodeId const& name, std::string_view formula) {
+    return extractErrorCode(ctx.kernel.setNodeFormula(name, formula));
 }
 
-SF_ErrorCode EngineImpl::setCellDependency(CellId const& name, std::string_view dependencies) {
-    return extractErrorCode(ctx.kernel.setCellDependencies(name, parseDependencies(dependencies)));
+SF_ErrorCode EngineImpl::setNodeDependency(NodeId const& name, std::string_view dependencies) {
+    return extractErrorCode(ctx.kernel.setNodeDependencies(name, parseDependencies(dependencies)));
 }
 
-SF_ErrorCode EngineImpl::getCellValue(CellId const& name, double& value) {
-    auto result = ctx.kernel.getCellValue(name);
+SF_ErrorCode EngineImpl::getNodeValue(NodeId const& name, double& value) {
+    auto result = ctx.kernel.getNodeValue(name);
     if (!result) {
         sf_set_error("%s", result.error().message.c_str());
         return result.error().errorCode;

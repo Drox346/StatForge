@@ -12,36 +12,36 @@ Engine::Engine(Engine&& other) noexcept = default;
 
 Engine& Engine::operator=(Engine&& other) noexcept = default;
 
-SF_ErrorCode Engine::createAggregatorCell(std::string const& name) {
-    return _impl->createAggregatorCell(name);
+SF_ErrorCode Engine::createAggregatorNode(std::string const& name) {
+    return _impl->createAggregatorNode(name);
 }
 
-SF_ErrorCode Engine::createFormulaCell(std::string const& name, std::string const& formula) {
-    return _impl->createFormulaCell(name, formula);
+SF_ErrorCode Engine::createFormulaNode(std::string const& name, std::string const& formula) {
+    return _impl->createFormulaNode(name, formula);
 }
 
-SF_ErrorCode Engine::createValueCell(std::string const& name, double value) {
-    return _impl->createValueCell(name, value);
+SF_ErrorCode Engine::createValueNode(std::string const& name, double value) {
+    return _impl->createValueNode(name, value);
 }
 
-SF_ErrorCode Engine::removeCell(std::string const& name) {
-    return _impl->removeCell(name);
+SF_ErrorCode Engine::removeNode(std::string const& name) {
+    return _impl->removeNode(name);
 }
 
-SF_ErrorCode Engine::setCellValue(std::string const& name, double value) {
-    return _impl->setCellValue(name, value);
+SF_ErrorCode Engine::setNodeValue(std::string const& name, double value) {
+    return _impl->setNodeValue(name, value);
 }
 
-SF_ErrorCode Engine::setCellFormula(std::string const& name, std::string const& formula) {
-    return _impl->setCellFormula(name, formula);
+SF_ErrorCode Engine::setNodeFormula(std::string const& name, std::string const& formula) {
+    return _impl->setNodeFormula(name, formula);
 }
 
-SF_ErrorCode Engine::setCellDependency(std::string const& name, std::string const& dependencies) {
-    return _impl->setCellDependency(name, dependencies);
+SF_ErrorCode Engine::setNodeDependency(std::string const& name, std::string const& dependencies) {
+    return _impl->setNodeDependency(name, dependencies);
 }
 
-SF_ErrorCode Engine::getCellValue(std::string const& name, double& value) const {
-    return _impl->getCellValue(name, value);
+SF_ErrorCode Engine::getNodeValue(std::string const& name, double& value) const {
+    return _impl->getNodeValue(name, value);
 }
 
 SF_ErrorCode Engine::createRule(std::string const& /*name*/,

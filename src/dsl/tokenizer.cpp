@@ -56,7 +56,8 @@ void Tokenizer::number() {
     const std::string_view lex = _source.substr(start, _pos - start);
     double value{};
     std::from_chars(lex.begin(), lex.end(), value);
-    _tokens.push_back(Token{.kind = TokenKind::Number, .lexeme = lex, .span = _here, .number = value});
+    _tokens.push_back(
+        Token{.kind = TokenKind::Number, .lexeme = lex, .span = _here, .number = value});
 }
 
 void Tokenizer::identifierOrKeyword() {
@@ -67,14 +68,16 @@ void Tokenizer::identifierOrKeyword() {
     const std::string_view lex = _source.substr(start, _pos - start);
 
     if (lex == "true" || lex == "false") {
-        _tokens.push_back(
-            Token{.kind = TokenKind::Number, .lexeme = lex, .span = _here, .number = lex == "true" ? 1.0 : 0.0});
+        _tokens.push_back(Token{.kind = TokenKind::Number,
+                                .lexeme = lex,
+                                .span = _here,
+                                .number = lex == "true" ? 1.0 : 0.0});
         return;
     }
     _tokens.push_back(Token{.kind = TokenKind::Identifier, .lexeme = lex, .span = _here});
 }
 
-VoidResult Tokenizer::cellReference() {
+VoidResult Tokenizer::nodeReference() {
     Span begin = _here;
     advance(); // skip leading '<'
     const std::size_t start = _pos;
@@ -84,11 +87,11 @@ VoidResult Tokenizer::cellReference() {
     const auto name = _source.substr(start, _pos - start);
     SF_RETURN_UNEXPECTED_IF_SPAN(peek() != '>',
                                  SF_ERR_INVALID_DSL,
-                                 std::format(R"(Unterminated cell reference)"),
+                                 std::format(R"(Unterminated node reference)"),
                                  _here);
 
     advance(); // consume '>'
-    _tokens.push_back(Token{.kind = TokenKind::CellRef, .lexeme = name, .span = begin});
+    _tokens.push_back(Token{.kind = TokenKind::NodeRef, .lexeme = name, .span = begin});
 
     return {};
 }
@@ -135,18 +138,20 @@ TokenResult Tokenizer::tokenize() {
             continue;
         case '!':
             if (match('=')) {
-                _tokens.push_back(Token{.kind = TokenKind::BangEqual, .lexeme = "!=", .span = _here});
+                _tokens.push_back(
+                    Token{.kind = TokenKind::BangEqual, .lexeme = "!=", .span = _here});
             } else {
                 add(TokenKind::Bang);
             }
             continue;
         case '<':
             if (match('=')) {
-                _tokens.push_back(Token{.kind = TokenKind::LessEqual, .lexeme = "<=", .span = _here});
+                _tokens.push_back(
+                    Token{.kind = TokenKind::LessEqual, .lexeme = "<=", .span = _here});
             } else if (std::isalpha(peek())) {
                 _pos--;
                 _here.column--;
-                auto result = cellReference();
+                auto result = nodeReference();
                 SF_RETURN_ERROR_IF_UNEXPECTED(result);
             } else {
                 add(TokenKind::Less);
@@ -154,39 +159,45 @@ TokenResult Tokenizer::tokenize() {
             continue;
         case '>':
             if (match('=')) {
-                _tokens.push_back(Token{.kind = TokenKind::GreaterEqual, .lexeme = ">=", .span = _here});
+                _tokens.push_back(
+                    Token{.kind = TokenKind::GreaterEqual, .lexeme = ">=", .span = _here});
             } else {
                 add(TokenKind::Greater);
             }
             continue;
         case '=':
             if (match('=')) {
-                _tokens.push_back(Token{.kind = TokenKind::EqualEqual, .lexeme = "==", .span = _here});
+                _tokens.push_back(
+                    Token{.kind = TokenKind::EqualEqual, .lexeme = "==", .span = _here});
             } else {
-                return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL,
-                                                      std::format(R"('=' is invalid in formulas (did you mean '=='?))"),
-                                                      _here));
+                return std::unexpected(buildErrorInfo(
+                    SF_ERR_INVALID_DSL,
+                    std::format(R"('=' is invalid in formulas (did you mean '=='?))"),
+                    _here));
             }
             continue;
         case '&':
             if (match('&')) {
                 _tokens.push_back(Token{.kind = TokenKind::AndAnd, .lexeme = "&&", .span = _here});
             } else {
-                return std::unexpected(
-                    buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(Single '&' not supported)"), _here));
+                return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL,
+                                                      std::format(R"(Single '&' not supported)"),
+                                                      _here));
             }
             continue;
         case '|':
             if (match('|')) {
                 _tokens.push_back(Token{.kind = TokenKind::OrOr, .lexeme = "||", .span = _here});
             } else {
-                return std::unexpected(
-                    buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(Single '|' not supported)"), _here));
+                return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL,
+                                                      std::format(R"(Single '|' not supported)"),
+                                                      _here));
             }
             continue;
         case '"':
-            return std::unexpected(
-                buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(String literals not supported)"), _here));
+            return std::unexpected(buildErrorInfo(SF_ERR_INVALID_DSL,
+                                                  std::format(R"(String literals not supported)"),
+                                                  _here));
         default:
             if (std::isdigit(currentCharacter)) {
                 _pos--;
@@ -198,7 +209,9 @@ TokenResult Tokenizer::tokenize() {
                 identifierOrKeyword();
             } else {
                 return std::unexpected(
-                    buildErrorInfo(SF_ERR_INVALID_DSL, std::format(R"(Unknown character in formula)"), _here));
+                    buildErrorInfo(SF_ERR_INVALID_DSL,
+                                   std::format(R"(Unknown character in formula)"),
+                                   _here));
             }
         }
     }

@@ -37,7 +37,7 @@ enum class TokenKind : uint8_t {
     // literals, identifiers
     Number,
     Identifier,
-    CellRef
+    NodeRef
 };
 
 struct Token {
@@ -62,7 +62,7 @@ private:
     void add(TokenKind kind);
     void number();
     void identifierOrKeyword();
-    VoidResult cellReference();
+    VoidResult nodeReference();
 
     std::string_view _source;
     std::vector<Token> _tokens;

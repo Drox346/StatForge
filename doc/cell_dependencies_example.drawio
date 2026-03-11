@@ -19,7 +19,7 @@
             <mxPoint x="3360" y="2590" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="DxNy1WVJfUA5JzOVF3Kq-42" value="Cell Types:" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="DxNy1WVJfUA5JzOVF3Kq-42" value="Node Types:" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="1410" y="1300" width="90" height="30" as="geometry" />
         </mxCell>
         <mxCell id="DxNy1WVJfUA5JzOVF3Kq-96" value="" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" parent="1" edge="1">
@@ -154,7 +154,7 @@
         <mxCell id="DxNy1WVJfUA5JzOVF3Kq-136" value="Display" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1620" y="560" width="130" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="wOvlqOD0LjhlvtfpQsyn-3" value="&lt;div&gt;Goal is to reduce the complexity of the cell layout of the engine. Use it for fixed calculations with minimal conditions like:&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;- apply jewel radius effects&lt;div&gt;- sum of all str mods&lt;div&gt;- total flat life tree&amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/div&gt;&lt;div&gt;- total inc life tree&lt;/div&gt;&lt;div&gt;- ....&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="1" vertex="1">
+        <mxCell id="wOvlqOD0LjhlvtfpQsyn-3" value="&lt;div&gt;Goal is to reduce the complexity of the node layout of the engine. Use it for fixed calculations with minimal conditions like:&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;- apply jewel radius effects&lt;div&gt;- sum of all str mods&lt;div&gt;- total flat life tree&amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/div&gt;&lt;div&gt;- total inc life tree&lt;/div&gt;&lt;div&gt;- ....&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="1" vertex="1">
           <mxGeometry x="852.5" y="640" width="180" height="210" as="geometry" />
         </mxCell>
         <mxCell id="WC7Za_dSP8BVYdFuTw67-1" value="" style="endArrow=classic;html=1;rounded=0;" parent="1" source="WC7Za_dSP8BVYdFuTw67-6" target="WC7Za_dSP8BVYdFuTw67-7" edge="1">
@@ -952,7 +952,7 @@
         <mxCell id="WC7Za_dSP8BVYdFuTw67-218" value="Value" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="3210" y="1330" width="90" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="WC7Za_dSP8BVYdFuTw67-220" value="Cell Types:" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="WC7Za_dSP8BVYdFuTw67-220" value="Node Types:" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="3270" y="1300" width="90" height="30" as="geometry" />
         </mxCell>
         <mxCell id="WC7Za_dSP8BVYdFuTw67-226" value="FinalLife" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
@@ -1270,13 +1270,13 @@
             <mxPoint x="1632" y="710" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="GoNzYDvj2TOfRmNesymY-12" value="Condition Change&amp;nbsp;&lt;div&gt;that changes cell layout&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+        <mxCell id="GoNzYDvj2TOfRmNesymY-12" value="Condition Change&amp;nbsp;&lt;div&gt;that changes node layout&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="1070" y="673" width="150" height="40" as="geometry" />
         </mxCell>
         <mxCell id="GoNzYDvj2TOfRmNesymY-13" value="Stats" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="1280" y="560" width="50" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="GoNzYDvj2TOfRmNesymY-14" value="Change cells" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+        <mxCell id="GoNzYDvj2TOfRmNesymY-14" value="Change nodes" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="1390" y="678" width="90" height="30" as="geometry" />
         </mxCell>
         <mxCell id="GoNzYDvj2TOfRmNesymY-15" value="(maybe just a specific type of action?)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">

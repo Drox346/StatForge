@@ -2,7 +2,7 @@
 
 #include "error/error.h"
 #include "error/internal/error.hpp"
-#include "stat_kernel/cell.hpp"
+#include "stat_kernel/node.hpp"
 #include "types/definitions.hpp"
 
 #include <cassert>
@@ -16,27 +16,27 @@ using namespace statkernel;
 StatKernel::StatKernel() : _compiler(_graph), _executor(_graph) {
 }
 
-VoidResult StatKernel::createAggregatorCell(CellId const& id,
-                                            std::vector<CellId> const& dependencies) {
-    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.addAggregatorCell(id, dependencies));
+VoidResult StatKernel::createAggregatorNode(NodeId const& id,
+                                            std::vector<NodeId> const& dependencies) {
+    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.addAggregatorNode(id, dependencies));
     _executor.markAsDirtyLeaf(id);
 
     return {};
 }
 
-VoidResult StatKernel::createFormulaCell(CellId const& id, std::string_view formula) {
-    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.addFormulaCell(id, formula));
+VoidResult StatKernel::createFormulaNode(NodeId const& id, std::string_view formula) {
+    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.addFormulaNode(id, formula));
     _executor.markAsDirtyLeaf(id);
 
     return {};
 }
 
-VoidResult StatKernel::createValueCell(CellId const& id, double value) {
-    return _compiler.addValueCell(id, value);
+VoidResult StatKernel::createValueNode(NodeId const& id, double value) {
+    return _compiler.addValueNode(id, value);
 }
 
-VoidResult StatKernel::removeCell(CellId const& id) {
-    if (auto result = _graph.removeCell(id); !result) [[unlikely]] {
+VoidResult StatKernel::removeNode(NodeId const& id) {
+    if (auto result = _graph.removeNode(id); !result) [[unlikely]] {
         return result;
     }
     _executor.remove(id);
@@ -44,42 +44,42 @@ VoidResult StatKernel::removeCell(CellId const& id) {
     return {};
 }
 
-VoidResult StatKernel::setCellValue(CellId const& id, CellValue value) {
+VoidResult StatKernel::setNodeValue(NodeId const& id, NodeValue value) {
     SF_RETURN_UNEXPECTED_IF(!_graph.contains(id),
-                            SF_ERR_CELL_NOT_FOUND,
-                            std::format(R"(Trying to set value of non-existing cell "{}")", id));
+                            SF_ERR_NODE_NOT_FOUND,
+                            std::format(R"(Trying to set value of non-existing node "{}")", id));
 
-    auto& cell = _graph.cell(id);
-    SF_RETURN_UNEXPECTED_IF(cell.type != CellType::Value,
-                            SF_ERR_CELL_TYPE_MISMATCH,
-                            std::format(R"(Trying to change value of non value cell "{}")", id));
+    auto& node = _graph.node(id);
+    SF_RETURN_UNEXPECTED_IF(node.type != NodeType::Value,
+                            SF_ERR_NODE_TYPE_MISMATCH,
+                            std::format(R"(Trying to change value of non value node "{}")", id));
 
-    if (cell.value == value) {
+    if (node.value == value) {
         return {};
     }
 
-    cell.value = value;
+    node.value = value;
     _executor.markDirty(id);
     return {};
 }
 
-VoidResult StatKernel::setCellFormula(CellId const& id, std::string_view formula) {
-    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.setCellFormula(id, formula));
-    _executor.markDirty(id);
-
-    return {};
-}
-
-VoidResult StatKernel::setCellDependencies(CellId const& id,
-                                           std::vector<CellId> const& dependencies) {
-    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.setAggCellDependencies(id, dependencies));
+VoidResult StatKernel::setNodeFormula(NodeId const& id, std::string_view formula) {
+    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.setNodeFormula(id, formula));
     _executor.markDirty(id);
 
     return {};
 }
 
-CellValueResult StatKernel::getCellValue(CellId const& id) {
-    return _executor.getCellValue(id);
+VoidResult StatKernel::setNodeDependencies(NodeId const& id,
+                                           std::vector<NodeId> const& dependencies) {
+    SF_RETURN_ERROR_IF_UNEXPECTED(_compiler.setAggNodeDependencies(id, dependencies));
+    _executor.markDirty(id);
+
+    return {};
+}
+
+NodeValueResult StatKernel::getNodeValue(NodeId const& id) {
+    return _executor.getNodeValue(id);
 }
 
 VoidResult StatKernel::evaluate() {

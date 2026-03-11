@@ -17,21 +17,21 @@ void Executor::reset() {
     _dirtyLeaves.clear();
 }
 
-void Executor::markDirty(CellId const& id) {
-    std::stack<CellId> work;
+void Executor::markDirty(NodeId const& id) {
+    std::stack<NodeId> work;
     work.push(id);
 
     while (!work.empty()) {
         auto currentId = work.top();
         work.pop();
-        auto& currentCell = _graph.cell(currentId);
-        const bool hasFormula = currentCell.type != CellType::Value;
+        auto& currentNode = _graph.node(currentId);
+        const bool hasFormula = currentNode.type != NodeType::Value;
 
-        if (currentCell.dirty) {
+        if (currentNode.dirty) {
             continue;
         }
 
-        currentCell.dirty = hasFormula;
+        currentNode.dirty = hasFormula;
 
         const auto& dependents = static_cast<const Graph&>(_graph).dependents(currentId);
         for (auto const& dependent : dependents) {
@@ -43,44 +43,44 @@ void Executor::markDirty(CellId const& id) {
     }
 }
 
-void Executor::markAsDirtyLeaf(CellId const& id) {
+void Executor::markAsDirtyLeaf(NodeId const& id) {
     _dirtyLeaves.emplace_back(id);
 }
 
-void Executor::remove(CellId const& id) {
+void Executor::remove(NodeId const& id) {
     auto it = std::ranges::find(_dirtyLeaves, id);
     if (it != _dirtyLeaves.end()) {
         _dirtyLeaves.erase(it);
     }
 }
 
-void Executor::evaluate(CellId const& id) {
+void Executor::evaluate(NodeId const& id) {
     (this->*evaluateImpl)(id);
 }
 
-CellValueResult Executor::getCellValue(CellId const& id) {
+NodeValueResult Executor::getNodeValue(NodeId const& id) {
     SF_RETURN_UNEXPECTED_IF(!_graph.contains(id),
-                            SF_ERR_CELL_NOT_FOUND,
-                            std::format(R"(Trying to set value of non-existing cell "{}")", id));
+                            SF_ERR_NODE_NOT_FOUND,
+                            std::format(R"(Trying to set value of non-existing node "{}")", id));
 
-    auto& cell = _graph.cell(id);
-    if (cell.dirty) {
+    auto& node = _graph.node(id);
+    if (node.dirty) {
         evaluate(id);
     }
-    return cell.value;
+    return node.value;
 }
 
 VoidResult Executor::evaluate() {
-    for (auto const& cell : _dirtyLeaves) {
-        evaluate(cell);
+    for (auto const& node : _dirtyLeaves) {
+        evaluate(node);
     }
     _dirtyLeaves.clear();
     return {};
 }
 
-void Executor::evaluateRecursive(CellId const& id) {
-    auto& cell = _graph.cell(id);
-    if (!cell.dirty) {
+void Executor::evaluateRecursive(NodeId const& id) {
+    auto& node = _graph.node(id);
+    if (!node.dirty) {
         return;
     }
 
@@ -88,21 +88,21 @@ void Executor::evaluateRecursive(CellId const& id) {
         evaluateRecursive(dependency);
     }
 
-    if (cell.type != CellType::Value) {
-        cell.value = cell.formula();
+    if (node.type != NodeType::Value) {
+        node.value = node.formula();
     }
-    cell.dirty = false;
+    node.dirty = false;
 }
 
-void Executor::evaluateIterative(CellId const& id) {
-    if (!_graph.cell(id).dirty) {
+void Executor::evaluateIterative(NodeId const& id) {
+    if (!_graph.node(id).dirty) {
         return;
     }
 
     enum class VisitState : uint8_t { Unvisited, Visiting, Visited };
-    std::unordered_map<CellId, VisitState> visitState;
+    std::unordered_map<NodeId, VisitState> visitState;
 
-    std::stack<CellId> stack;
+    std::stack<NodeId> stack;
     stack.push(id);
 
     while (!stack.empty()) {
@@ -114,12 +114,12 @@ void Executor::evaluateIterative(CellId const& id) {
             continue;
         }
 
-        auto& cell = _graph.cell(currentId);
+        auto& node = _graph.node(currentId);
 
         if (state == VisitState::Unvisited) {
             state = VisitState::Visiting;
 
-            if (!cell.dirty) {
+            if (!node.dirty) {
                 stack.pop();
                 state = VisitState::Visited;
                 continue;
@@ -131,10 +131,10 @@ void Executor::evaluateIterative(CellId const& id) {
                 }
             }
         } else if (state == VisitState::Visiting) {
-            if (cell.formula) {
-                cell.value = cell.formula();
+            if (node.formula) {
+                node.value = node.formula();
             }
-            cell.dirty = false;
+            node.dirty = false;
             state = VisitState::Visited;
             stack.pop();
         }
