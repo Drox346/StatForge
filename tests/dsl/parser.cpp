@@ -1,6 +1,7 @@
 #include "dsl/parser.hpp"
 #include "dsl/ast.hpp"
 #include "dsl/tokenizer.hpp"
+#include "error/error.h"
 
 #include <doctest/doctest.h>
 
@@ -18,6 +19,14 @@ static std::string sexpr(std::string const& src) {
     auto astResult = Parser{tokenResult.value()}.parse(false); //no constant folding
     REQUIRE(astResult);
     return dumpSExpr(*astResult.value());
+}
+
+statforge::ErrorInfo parseError(std::string const& src) {
+    auto tokenResult = Tokenizer{src}.tokenize();
+    REQUIRE(tokenResult);
+    auto astResult = Parser{tokenResult.value()}.parse(false);
+    REQUIRE_FALSE(astResult);
+    return astResult.error();
 }
 
 } // namespace
@@ -89,25 +98,29 @@ TEST_CASE("boolean keywords lower to numeric 0 / 1") {
 
 // error handling
 
-// TEST_CASE("missing right parenthesis") {
-//     auto const tokens = Tokenizer{"(1 + 2"}.tokenize();
-//     CHECK_THROWS_WITH_AS(Parser{tokens}.parse(), "expected ')'", std::runtime_error);
-// }
+TEST_CASE("missing right parenthesis reports invalid dsl") {
+    auto error = parseError("(1 + 2");
+    CHECK_EQ(error.errorCode, SF_ERR_INVALID_DSL);
+    CHECK_EQ(error.message, "Expected ')'");
+}
 
-// TEST_CASE("dangling operator at end of expression") {
-//     auto const tokens = Tokenizer{"1 + "}.tokenize();
-//     CHECK_THROWS_AS(Parser{tokens}.parse(), std::runtime_error);
-// }
+TEST_CASE("dangling operator at end of expression reports invalid dsl") {
+    auto error = parseError("1 + ");
+    CHECK_EQ(error.errorCode, SF_ERR_INVALID_DSL);
+    CHECK_EQ(error.message, "Unexpected token in expression");
+}
 
-// TEST_CASE("single '=' is illegal") {
-//     CHECK_THROWS_WITH_AS(Tokenizer{"1 = 2"}.tokenize(),
-//                          "'=' is invalid in formulas (did you mean '=='?)",
-//                          std::runtime_error);
-// }
+TEST_CASE("bare identifier is rejected") {
+    auto error = parseError("foo");
+    CHECK_EQ(error.errorCode, SF_ERR_INVALID_DSL);
+    CHECK_EQ(error.message, "Bare identifier not allowed, use <id> for node ref");
+}
 
-// TEST_CASE("unknown character produces lexer error") {
-//     CHECK_THROWS_AS(Tokenizer{"1 $ 2"}.tokenize(), std::runtime_error);
-// }
+TEST_CASE("trailing tokens are rejected") {
+    auto error = parseError("(1 + 2) 3");
+    CHECK_EQ(error.errorCode, SF_ERR_INVALID_DSL);
+    CHECK_EQ(error.message, "Unexpected trailing tokens");
+}
 
 
 // performance smoke test

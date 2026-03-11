@@ -1,4 +1,5 @@
 #include "dsl/tokenizer.hpp"
+#include "error/error.h"
 
 #include <doctest/doctest.h>
 
@@ -15,6 +16,12 @@ auto getTokenKinds(std::string_view src) {
         retVal.push_back(token.kind);
     }
     return retVal;
+}
+
+auto tokenizeError(std::string_view src) {
+    auto tokenResult = Tokenizer{src}.tokenize();
+    REQUIRE_FALSE(tokenResult);
+    return tokenResult.error();
 }
 
 } // namespace
@@ -59,4 +66,16 @@ TEST_CASE("boolean keywords become numeric") {
     CHECK_EQ(tokens[0], TokenKind::Number);
     CHECK_EQ(tokens[1], TokenKind::AndAnd);
     CHECK_EQ(tokens[2], TokenKind::Number);
+}
+
+TEST_CASE("single equals reports invalid dsl") {
+    auto error = tokenizeError("1 = 2");
+    CHECK_EQ(error.errorCode, SF_ERR_INVALID_DSL);
+    CHECK_EQ(error.message, R"('=' is invalid in formulas (did you mean '=='?))");
+}
+
+TEST_CASE("unknown character reports invalid dsl") {
+    auto error = tokenizeError("1 $ 2");
+    CHECK_EQ(error.errorCode, SF_ERR_INVALID_DSL);
+    CHECK_EQ(error.message, "Unknown character in formula");
 }

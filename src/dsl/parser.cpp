@@ -3,6 +3,7 @@
 #include "error/error.h"
 #include "error/internal/error.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <expected>
 
@@ -15,7 +16,8 @@ VoidResult Parser::verify(ExprPtr const& /*ast*/) {
 }
 
 const Token& Parser::peek(std::size_t offset) const {
-    return _tokens[_pos + offset];
+    auto const index = std::min(_pos + offset, _tokens.size() - 1);
+    return _tokens[index];
 }
 
 bool Parser::match(TokenKind kind) {
@@ -246,7 +248,7 @@ ExprPtrResult Parser::parsePrimary() {
 
     default:
         return std::unexpected(
-            buildErrorInfo(SF_ERR_INVALID_DSL, "Unexpected token in expression", peek().span));
+            buildErrorInfo(SF_ERR_INVALID_DSL, "Unexpected token in expression", token.span));
     }
 }
 

@@ -117,6 +117,16 @@ VoidResult Graph::setNodeDependencies(NodeId id, std::vector<NodeId> newDeps, bo
             std::format(R"(Trying to set dependency of "{}" with cyclic dependency)", id));
     }
 
+    {
+        std::unordered_set<NodeId> seen;
+        for (auto const& dependency : newDeps) {
+            SF_RETURN_UNEXPECTED_IF(
+                !seen.insert(dependency).second,
+                SF_ERR_DUPLICATE_DEPENDENCY,
+                std::format(R"(Trying to add duplicate dependency "{}" to "{}")", dependency, id));
+        }
+    }
+
     auto& currentDeps = _dependenciesMap[id];
 
     // handle new dependencies

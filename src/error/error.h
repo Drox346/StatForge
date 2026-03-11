@@ -32,6 +32,9 @@ typedef enum SF_ErrorCode {
     // Attempted to reference a node that does not exist.
     SF_ERR_DEPENDENCY_DOESNT_EXIST,
 
+    // Attempted to add the same dependency more than once.
+    SF_ERR_DUPLICATE_DEPENDENCY,
+
     // Attempted to remove a node required by a formula node.
     SF_ERR_DEPENDENT_FORMULA_NODE,
 

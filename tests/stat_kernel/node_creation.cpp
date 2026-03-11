@@ -1,4 +1,5 @@
 #include "../test_util.hpp"
+#include "api/cpp.hpp"
 #include "error/error.h"
 #include "stat_kernel/stat_kernel.hpp"
 
@@ -100,6 +101,76 @@ TEST_CASE("collection node operations") {
     checkValue(kernel, "count", 3);
 }
 
+TEST_CASE("collection node edge cases") {
+    StatKernel kernel;
+
+    CHECK(kernel.createValueNode("a", 1));
+    CHECK(kernel.createValueNode("b", 2));
+    CHECK(kernel.createValueNode("c", 10));
+    CHECK(kernel.createValueNode("d", 100));
+
+    SUBCASE("median with even dependency count averages the middle pair") {
+        CHECK(kernel.createCollectionNode("median", {"a", "b", "c", "d"}, SF_COLLECTION_OP_MEDIAN));
+        checkValue(kernel, "median", doctest::Approx(6.0));
+    }
+
+    SUBCASE("changing dependencies updates collection semantics") {
+        CHECK(kernel.createCollectionNode("average", {"a", "b", "c"}, SF_COLLECTION_OP_AVERAGE));
+        checkValue(kernel, "average", doctest::Approx(13.0 / 3.0));
+
+        CHECK(kernel.setNodeDependencies("average", {"a", "d"}));
+        checkValue(kernel, "average", doctest::Approx(50.5));
+    }
+
+    SUBCASE("duplicate dependencies are rejected on creation") {
+        checkErrorCode(kernel.createCollectionNode("dup", {"a", "a"}, SF_COLLECTION_OP_SUM),
+                       SF_ERR_DUPLICATE_DEPENDENCY);
+    }
+
+    SUBCASE("duplicate dependencies are rejected when rewiring") {
+        CHECK(kernel.createCollectionNode("sum", {"a", "b"}, SF_COLLECTION_OP_SUM));
+        checkErrorCode(kernel.setNodeDependencies("sum", {"c", "c"}), SF_ERR_DUPLICATE_DEPENDENCY);
+    }
+
+    SUBCASE("collection allows dependency removal and updates value") {
+        CHECK(kernel.createCollectionNode("sum", {"a", "b"}, SF_COLLECTION_OP_SUM));
+        checkValue(kernel, "sum", 3);
+
+        CHECK(kernel.removeNode("a"));
+        checkValue(kernel, "sum", 2);
+    }
+}
+
+TEST_CASE("formula dependency removal is rejected") {
+    StatKernel kernel;
+
+    CHECK(kernel.createValueNode("value1", 5));
+    CHECK(kernel.createFormulaNode("formula1", "<value1> * 2"));
+
+    checkErrorCode(kernel.removeNode("value1"), SF_ERR_DEPENDENT_FORMULA_NODE);
+    checkValue(kernel, "formula1", 10);
+}
+
+TEST_CASE("engine dependency string parsing") {
+    Engine engine;
+
+    CHECK_EQ(engine.createValueNode("a", 1), SF_OK);
+    CHECK_EQ(engine.createValueNode("b", 2), SF_OK);
+    CHECK_EQ(engine.createValueNode("c", 10), SF_OK);
+    CHECK_EQ(engine.createCollectionNode("sum", SF_COLLECTION_OP_SUM), SF_OK);
+
+    SUBCASE("commas and whitespace are both accepted") {
+        CHECK_EQ(engine.setNodeDependency("sum", "a, b   c"), SF_OK);
+        double value{};
+        CHECK_EQ(engine.getNodeValue("sum", value), SF_OK);
+        CHECK_EQ(value, 13);
+    }
+
+    SUBCASE("duplicate names in dependency string are rejected") {
+        CHECK_EQ(engine.setNodeDependency("sum", "a a"), SF_ERR_DUPLICATE_DEPENDENCY);
+    }
+}
+
 TEST_CASE("node creation errors") {
     StatKernel kernel;
 
@@ -133,6 +204,12 @@ TEST_CASE("node creation errors") {
     SUBCASE("ill-formed dsl") {
         checkErrorCode(kernel.createFormulaNode("formula1", "3 - <<>"), SF_ERR_INVALID_DSL);
         checkErrorCode(kernel.getNodeValue("formula"), SF_ERR_NODE_NOT_FOUND);
+    }
+    SUBCASE("invalid collection operation") {
+        checkErrorCode(kernel.createCollectionNode("collection",
+                                                   {"val"},
+                                                   static_cast<SF_CollectionOperation>(999)),
+                       SF_ERR_INVALID_COLLECTION_OPERATION);
     }
 }
 

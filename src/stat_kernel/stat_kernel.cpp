@@ -37,10 +37,14 @@ VoidResult StatKernel::createValueNode(NodeId const& id, double value) {
 }
 
 VoidResult StatKernel::removeNode(NodeId const& id) {
+    auto const dependents = static_cast<statkernel::Graph const&>(_graph).dependents(id);
     if (auto result = _graph.removeNode(id); !result) [[unlikely]] {
         return result;
     }
     _executor.remove(id);
+    for (auto const& dependentId : dependents) {
+        _executor.markDirty(dependentId);
+    }
 
     return {};
 }

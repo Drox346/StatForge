@@ -66,16 +66,6 @@ TEST_CASE("root function computes n-th root") {
     CHECK_EQ(evaluate(*astResult.value(), makeCtx()), doctest::Approx(3.0));
 }
 
-TEST_CASE("root wrong arg count throws") {
-    // CHECK_THROWS_WITH_AS(evaluate(*makeAst("root(2)"), makeCtx()),
-    //                      "root() expects exactly two arguments",
-    //                      std::runtime_error);
-}
-
-TEST_CASE("unknown function throws") {
-    // CHECK_THROWS_WITH_AS(evaluate(*makeAst("foo(1)"), makeCtx()), "unknown function 'foo'", std::runtime_error);
-}
-
 TEST_CASE("node reference multiplies correctly") {
     std::string formula = "<price> * <qty>";
     auto const& astResult = makeAst(formula);
