@@ -8,9 +8,6 @@ trap cleanup EXIT
 export CC=clang
 export CXX=clang++
 
-# Portable "benchmark-style" opts:
-# -O3 + NDEBUG + LTO, but NO -march/-mtune native.
-# Keep it fair for distributed binaries.
 common_cflags="-O3 -DNDEBUG -fomit-frame-pointer"
 common_cxxflags="$common_cflags"
 common_ldflags="-flto"
@@ -32,4 +29,4 @@ cmake \
 
 cmake --build build --config Release
 cd build
-./tests/test_statforge
+./tests/benchmark_statforge
