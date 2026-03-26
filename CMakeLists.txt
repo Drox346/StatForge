@@ -1,14 +1,8 @@
-cmake_minimum_required(VERSION 4.0.0)
+cmake_minimum_required(VERSION 3.16)
 project(StatForge)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_BUILD_TYPE Debug)
-# set(CMAKE_BUILD_TYPE Release)
-# set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-# set(CMAKE_CXX_FLAGS_RELEASE "-fno-omit-frame-pointer")
-
-# CPP23 MODULES?
-# set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD ON)
 
 add_subdirectory(src)
 
